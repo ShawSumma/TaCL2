@@ -1,4 +1,4 @@
 .vscode
-a.out
-perf
 perf*
+tacl/tacl.so
+tachvm

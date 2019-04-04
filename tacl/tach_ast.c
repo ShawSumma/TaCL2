@@ -1,4 +1,4 @@
-#include "tach.h"
+#include "tach_ast.h"
 
 tach_ast_proc *tach_ast_read_proc(FILE *f) {
     tach_ast_proc *ret = malloc(sizeof(tach_ast_proc));

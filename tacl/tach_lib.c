@@ -1,4 +1,4 @@
-#include "tach.h"
+#include "tach_lib.h"
 
 tach_state *tach_create_state() {
     tach_state *ret = malloc(sizeof(tach_state));

@@ -7,7 +7,6 @@ void tach_create_state_regester(tach_table *table, char *str, tach_object *obj) 
     tach_free_object(obj);
 }
 
-
 void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object **args) {
     if (fn->type == tach_object_func) {
         tach_object *obj = fn->value.func(state, count, args);
