@@ -2,7 +2,8 @@ proc fib n {
     if [lt $n 2] {
         copy $n
     } {
-        add [fib [sub $n 1]] [fib [sub $n 2]]
+        add [fib [sub $n 2]] [fib [sub $n 1]]
     }
 }
-print [fib 33]
+
+fib 33

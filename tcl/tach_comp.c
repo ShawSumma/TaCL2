@@ -63,9 +63,10 @@ void tach_comp_single(tach_program *prog, tach_ast_single *single) {
         case tach_ast_single_number: {
             prog->opcodes[prog->opcount].type = tach_opcode_push;
             prog->opcodes[prog->opcount].value = prog->objcount;
-            prog->objs[prog->objcount] = tach_object_make_number(single->value.number);
+            prog->objs[prog->objcount] = tach_object_make_number(tach_create_number_string(single->value.number));
             prog->opcount ++;
             prog->objcount ++;
+            free(single->value.number);
             break;
         }
         case tach_ast_single_string: {

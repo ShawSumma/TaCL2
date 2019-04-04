@@ -19,7 +19,7 @@ tach_object *tach_object_make_logical(bool b) {
     return ret;
 }
 
-tach_object *tach_object_make_number(double n) {
+tach_object *tach_object_make_number(tach_number *n) {
     tach_object *ret = tach_object_alloc();
     ret->type = tach_object_number;
     ret->value.number = n;

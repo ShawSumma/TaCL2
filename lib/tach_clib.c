@@ -18,10 +18,10 @@ char tach_clib_compare(tach_object *a, tach_object *b) {
             return 0;
         }
         case tach_object_number: {
-            if (a->value.number < b->value.number) {
+            if (tach_number_lt(a->value.number, b->value.number)) {
                 return -1;
             }
-            if (a->value.number > b->value.number) {
+            if (tach_number_gt(a->value.number, b->value.number)) {
                 return 1;
             }
             return 0;
@@ -67,10 +67,7 @@ tach_string tach_clib_tostring(tach_object *obj) {
         case tach_object_string:
             return tach_create_string(obj->value.string.str);
         case tach_object_number: {
-            char *str;
-            uint32_t count = snprintf(str, 0, "%lf", obj->value.number);
-            str = malloc(sizeof(char) * count);
-            snprintf(str, count, "%lf", obj->value.number);
+            char *str = tach_number_tostring(obj->value.number);
             tach_string tstr = tach_create_string(str);
             free(str);
             return tstr;

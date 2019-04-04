@@ -1,6 +1,8 @@
 #pragma once
 #include "tach.h"
 
+typedef tach_object *(*tach_func)(tach_state *, uint32_t, tach_object **);
+
 struct tach_string {
     char *str;
     uint32_t count;
@@ -23,8 +25,8 @@ struct tach_object {
     union {
         bool logical;
         tach_point point;
-        double number;
         tach_func func;
+        tach_number *number;
         tach_vector *vector;
         tach_string string;
     } value;
@@ -59,7 +61,7 @@ tach_object *tach_vector_last(tach_vector *);
 tach_object *tach_object_alloc();
 tach_object *tach_object_make_nil();
 tach_object *tach_object_make_logical(bool);
-tach_object *tach_object_make_number(double);
+tach_object *tach_object_make_number(tach_number *);
 tach_object *tach_object_make_point(uint32_t);
 tach_object *tach_object_make_func(tach_func);
 tach_object *tach_object_make_string(tach_string str);

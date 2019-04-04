@@ -7,34 +7,6 @@ void tach_create_state_regester(tach_table *table, char *str, tach_object *obj) 
     tach_free_object(obj);
 }
 
-tach_state *tach_create_state() {
-    tach_state *ret = malloc(sizeof(tach_state));
-    ret->depth = 1;
-    ret->callalloc = 8;
-    ret->calls = malloc(sizeof(uint32_t) * ret->callalloc);
-    ret->locals = malloc(sizeof(tach_table *) * ret->callalloc);
-    ret->stack = tach_create_vector();
-    ret->calls[0] = -1;
-    ret->locals[0] = tach_create_table();
-    tach_object *key;
-    tach_object *val;
-
-    tach_create_state_regester(ret->locals[0], "echo", tach_object_make_func(tach_lib_print));
-    tach_create_state_regester(ret->locals[0], "print", tach_object_make_func(tach_lib_print));
-    tach_create_state_regester(ret->locals[0], "add", tach_object_make_func(tach_lib_add));
-    tach_create_state_regester(ret->locals[0], "mul", tach_object_make_func(tach_lib_mul));
-    tach_create_state_regester(ret->locals[0], "div", tach_object_make_func(tach_lib_div));
-    tach_create_state_regester(ret->locals[0], "sub", tach_object_make_func(tach_lib_sub));
-    tach_create_state_regester(ret->locals[0], "get", tach_object_make_func(tach_lib_get));
-    tach_create_state_regester(ret->locals[0], "exec", tach_object_make_func(tach_lib_call));
-    tach_create_state_regester(ret->locals[0], "proc", tach_object_make_func(tach_lib_proc));
-    tach_create_state_regester(ret->locals[0], "set", tach_object_make_func(tach_lib_set));
-    tach_create_state_regester(ret->locals[0], "if", tach_object_make_func(tach_lib_if));
-    tach_create_state_regester(ret->locals[0], "copy", tach_object_make_func(tach_lib_copy));
-    tach_create_state_regester(ret->locals[0], "lt", tach_object_make_func(tach_lib_lt));
-
-    return ret;
-}
 
 void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object **args) {
     if (fn->type == tach_object_func) {
@@ -94,7 +66,7 @@ void tach_program_run(tach_state *state, tach_program *prog) {
                 break;
             }
             case tach_opcode_pop: {
-                tach_object *obj = tach_vector_pop(state->stack);
+                tach_vector_pop(state->stack);
                 break;
             }
             case tach_opcode_load: {

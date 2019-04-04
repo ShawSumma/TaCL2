@@ -151,9 +151,22 @@ char *tach_ast_read_name(FILE *f) {
     }
 }
 
-double tach_ast_read_number(FILE *f) {
-    double got;
-    fscanf(f, "%lf", &got);
-    return got;
+char *tach_ast_read_number(FILE *f) {
+    char got = getc(f);
+    uint32_t alloc = 16;
+    char *name = malloc(sizeof(char) * alloc);
+    uint32_t place = 0;
+    while ((got >= '0' && got <= '9')) {
+        if (place + 4 > alloc) {
+            alloc *= 1.5;
+            name = realloc(name, sizeof(char) * alloc);
+        }
+        name[place] = got;
+        place ++;
+        got = getc(f);
+    }
+    ungetc(got, f);
+    name[place] = '\0';
+    return name;
 }
 

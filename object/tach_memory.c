@@ -24,11 +24,20 @@ void tach_free_object(tach_object *obj) {
             }
             break;
         }
+        case tach_object_number: {
+            tach_free_number(obj->value.number);
+            break;
+        }
         default: {
             break;
         }
     }
     free(obj);
+}
+
+void tach_free_number(tach_number *num) {
+    tach_number_clear(num);
+    free(num);
 }
 
 void tach_free_vector(tach_vector *vec) {
@@ -47,51 +56,6 @@ void tach_free_state(tach_state *state) {
     free(state->locals);
     free(state->calls);
     free(state);
-}
-
-void tach_ast_free_proc(tach_ast_proc *p) {
-    for (uint32_t i = 0; i < p->count; i++) {
-        tach_ast_free_command(p->commands[i]);
-    }
-    free(p->commands);
-    free(p);
-}
-
-void tach_ast_free_command(tach_ast_command *p) {
-    for (uint32_t i = 0; i < p->count; i++) {
-        tach_ast_free_single(p->singles[i]);
-    }
-    free(p->singles);
-    free(p);
-}
-
-void tach_ast_free_single(tach_ast_single *p) {
-    switch (p->type) {
-        case tach_ast_single_command: {
-            tach_ast_free_command(p->value.command);
-            break;
-        }
-        case tach_ast_single_proc: {
-            tach_ast_free_proc(p->value.proc);
-            break;
-        }
-        case tach_ast_single_name: {
-            tach_ast_free_name(p->value.name);
-            break;
-        }
-        case tach_ast_single_string: {
-            tach_ast_free_name(p->value.string);
-            break;
-        }
-        default: {
-            break;
-        }
-    }
-    free(p);
-}
-
-void tach_ast_free_name(char *p) {
-    free(p);
 }
 
 void tach_free_program(tach_program *prog) {

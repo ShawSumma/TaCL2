@@ -14,7 +14,7 @@ struct tach_ast_single {
         tach_ast_proc *proc;
         char *name;
         char *string;
-        double number;
+        char *number;
     } value;
 };
 
@@ -33,5 +33,5 @@ tach_ast_proc *tach_ast_read_proc(FILE *f);
 tach_ast_command *tach_ast_read_command(FILE *f);
 tach_ast_single *tach_ast_read_single(FILE *f);
 char *tach_ast_read_name(FILE *f);
-double tach_ast_read_number(FILE *f);
+char *tach_ast_read_number(FILE *f);
 

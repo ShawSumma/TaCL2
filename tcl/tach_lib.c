@@ -1,5 +1,35 @@
 #include "tach.h"
 
+tach_state *tach_create_state() {
+    tach_state *ret = malloc(sizeof(tach_state));
+    ret->depth = 1;
+    ret->callalloc = 8;
+    ret->calls = malloc(sizeof(uint32_t) * ret->callalloc);
+    ret->locals = malloc(sizeof(tach_table *) * ret->callalloc);
+    ret->stack = tach_create_vector();
+    ret->calls[0] = -1;
+    ret->locals[0] = tach_create_table();
+    tach_object *key;
+    tach_object *val;
+
+    tach_create_state_regester(ret->locals[0], "echo", tach_object_make_func(tach_lib_print));
+    tach_create_state_regester(ret->locals[0], "print", tach_object_make_func(tach_lib_print));
+    tach_create_state_regester(ret->locals[0], "add", tach_object_make_func(tach_lib_add));
+    tach_create_state_regester(ret->locals[0], "mul", tach_object_make_func(tach_lib_mul));
+    tach_create_state_regester(ret->locals[0], "div", tach_object_make_func(tach_lib_div));
+    tach_create_state_regester(ret->locals[0], "sub", tach_object_make_func(tach_lib_sub));
+    tach_create_state_regester(ret->locals[0], "get", tach_object_make_func(tach_lib_get));
+    tach_create_state_regester(ret->locals[0], "exec", tach_object_make_func(tach_lib_call));
+    tach_create_state_regester(ret->locals[0], "proc", tach_object_make_func(tach_lib_proc));
+    tach_create_state_regester(ret->locals[0], "set", tach_object_make_func(tach_lib_set));
+    tach_create_state_regester(ret->locals[0], "if", tach_object_make_func(tach_lib_if));
+    tach_create_state_regester(ret->locals[0], "copy", tach_object_make_func(tach_lib_copy));
+    tach_create_state_regester(ret->locals[0], "lt", tach_object_make_func(tach_lib_lt));
+
+    return ret;
+}
+
+
 tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args) {
     for (uint32_t i = 0; i < argc; i++) {
         if (i != 0) {
@@ -22,10 +52,10 @@ tach_object *tach_lib_lt(tach_state *state, uint32_t argc, tach_object **args) {
 }
 
 tach_object *tach_lib_add(tach_state *state, uint32_t argc, tach_object **args) {
-    double ret = 0;
+    tach_number *ret = tach_create_number(0);
     for (uint32_t i = 0; i < argc; i++) {
         if (args[i]->type == tach_object_number) {
-            ret += args[i]->value.number;
+            tach_number_add(ret, args[i]->value.number);
         }
         else {
             fprintf(stderr, "add only takes numbers");
@@ -36,10 +66,10 @@ tach_object *tach_lib_add(tach_state *state, uint32_t argc, tach_object **args) 
 }
 
 tach_object *tach_lib_mul(tach_state *state, uint32_t argc, tach_object **args) {
-    double ret = 1;
+    tach_number *ret = tach_create_number(1);
     for (uint32_t i = 0; i < argc; i++) {
         if (args[i]->type == tach_object_number) {
-            ret *= args[i]->value.number;
+            tach_number_mul(ret, args[i]->value.number);
         }
         else {
             fprintf(stderr, "mul only takes numbers");
@@ -58,10 +88,10 @@ tach_object *tach_lib_sub(tach_state *state, uint32_t argc, tach_object **args) 
         fprintf(stderr, "sub only takes numbers");
         exit(1);
     }
-    double ret = args[0]->value.number;
+    tach_number *ret = tach_number_copy(args[0]->value.number);
     for (uint32_t i = 1; i < argc; i++) {
         if (args[i]->type == tach_object_number) {
-            ret -= args[i]->value.number;
+            tach_number_sub(ret, args[i]->value.number);
         }
     }
     return tach_object_make_number(ret);
@@ -76,10 +106,10 @@ tach_object *tach_lib_div(tach_state *state, uint32_t argc, tach_object **args) 
         fprintf(stderr, "div only takes numbers");
         exit(1);
     }
-    double ret = args[0]->value.number;
+    tach_number *ret = tach_number_copy(args[0]->value.number);
     for (uint32_t i = 1; i < argc; i++) {
         if (args[i]->type == tach_object_number) {
-            ret /= args[i]->value.number;
+            tach_number_div(ret, args[i]->value.number);
         }
     }
     return tach_object_make_number(ret);
