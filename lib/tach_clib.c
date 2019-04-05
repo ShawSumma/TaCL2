@@ -62,6 +62,8 @@ tach_string tach_clib_tostring(tach_object *obj) {
             return tach_create_string("(proc)");
         case tach_object_vector:
             return tach_create_string("(vector)");
+        case tach_object_other:
+            return tach_create_string("(object)");
         case tach_object_logical:
             return tach_create_string(obj->value.logical ? "true" : "false");
         case tach_object_string:

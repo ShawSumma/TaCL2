@@ -18,9 +18,9 @@
 #include "object/tach_types.h"
 #include "vm/tach_types.h"
 #include "lib/tach_types.h"
-// #include "tacl/tach_types.h"
+#include "tacl/tach_types.h"
 
 #include "object/tach_all.h"
 #include "vm/tach_all.h"
 #include "lib/tach_all.h"
-// #include "tacl/tach_all.h"
+#include "tacl/tach_all.h"

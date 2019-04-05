@@ -18,13 +18,18 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "mul", tach_object_make_func(tach_lib_mul));
     tach_create_state_regester(ret->locals[0], "div", tach_object_make_func(tach_lib_div));
     tach_create_state_regester(ret->locals[0], "sub", tach_object_make_func(tach_lib_sub));
-    tach_create_state_regester(ret->locals[0], "get", tach_object_make_func(tach_lib_get));
     tach_create_state_regester(ret->locals[0], "exec", tach_object_make_func(tach_lib_call));
     tach_create_state_regester(ret->locals[0], "proc", tach_object_make_func(tach_lib_proc));
+    tach_create_state_regester(ret->locals[0], "set", tach_object_make_func(tach_lib_set));
+    tach_create_state_regester(ret->locals[0], "upset", tach_object_make_func(tach_lib_upset));
+    tach_create_state_regester(ret->locals[0], "get", tach_object_make_func(tach_lib_get));
     tach_create_state_regester(ret->locals[0], "set", tach_object_make_func(tach_lib_set));
     tach_create_state_regester(ret->locals[0], "if", tach_object_make_func(tach_lib_if));
     tach_create_state_regester(ret->locals[0], "copy", tach_object_make_func(tach_lib_copy));
     tach_create_state_regester(ret->locals[0], "lt", tach_object_make_func(tach_lib_lt));
+    tach_create_state_regester(ret->locals[0], "ffi", tach_object_make_func(tach_lib_ffi));
+    tach_create_state_regester(ret->locals[0], "true", tach_object_make_logical(true));
+    tach_create_state_regester(ret->locals[0], "false", tach_object_make_logical(false));
 
     return ret;
 }
@@ -153,10 +158,19 @@ tach_object *tach_lib_proc(tach_state *state, uint32_t argc, tach_object **args)
 
 tach_object *tach_lib_set(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
-        fprintf(stderr, "set takes 2 or args");
+        fprintf(stderr, "set takes 2 args");
         exit(1);
     }
     tach_set_table(state->locals[state->depth-1], args[0], args[1]);
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_upset(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr, "upset takes 2 args");
+        exit(1);
+    }
+    tach_set_table(state->locals[state->depth-2], args[0], args[1]);
     return tach_object_make_nil();
 }
 
@@ -199,5 +213,22 @@ tach_object *tach_lib_copy(tach_state *state, uint32_t argc, tach_object **args)
     }
     args[argc-1]->refc ++;
     return args[argc-1];
+}
+
+tach_object *tach_lib_ffi(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr, "ffi takes 1 or more arguments");
+        exit(1);
+    }
+    char *name = args[0]->value.string.str;
+    char *str = args[1]->value.string.str;
+    TCCState *s = tcc_new();
+    tcc_add_include_path(s, "./");
+    tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
+    tcc_compile_string(s, str);
+    tcc_relocate(s, TCC_RELOCATE_AUTO);
+    int(*func)() = tcc_get_symbol(s, name);
+    printf("%d\n", func());
+    return tach_object_make_nil();
 }
 

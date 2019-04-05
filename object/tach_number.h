@@ -1,3 +1,6 @@
+#pragma once
+#include "tach.h"
+
 #ifdef tach_number_use_double
 
 struct tach_number {

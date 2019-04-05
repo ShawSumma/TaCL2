@@ -21,6 +21,12 @@ struct tach_point {
     tach_object **args;
 };
 
+struct tach_other {
+    void *value;
+    char *type;
+    void (*free)(void *);
+};
+
 struct tach_object {
     union {
         bool logical;
@@ -29,6 +35,7 @@ struct tach_object {
         tach_number *number;
         tach_vector *vector;
         tach_string string;
+        tach_other other;
     } value;
     uint32_t refc;
     enum {
@@ -39,6 +46,7 @@ struct tach_object {
         tach_object_func,
         tach_object_string,
         tach_object_vector,
+        tach_object_other,
     } type;
 };
 
@@ -66,4 +74,5 @@ tach_object *tach_object_make_point(uint32_t);
 tach_object *tach_object_make_func(tach_func);
 tach_object *tach_object_make_string(tach_string str);
 tach_object *tach_object_make_vector(tach_vector *vec);
+tach_object *tach_object_make_other(tach_other);
 
