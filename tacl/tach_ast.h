@@ -1,7 +1,5 @@
 #pragma once
-#include "tach_all.h"
-
-#warning here
+#include "tach.h"
 
 struct tach_ast_single {
     enum {

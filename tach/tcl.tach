@@ -1,6 +1,5 @@
-ffi main (
-    #include "tach.h"
-    int main() {
-        return 4;
-    }
+ffi ffi_fib (
+    #include "tach/bind.c"
 )
+
+print [ffi_fib 40]

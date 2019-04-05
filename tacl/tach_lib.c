@@ -1,4 +1,4 @@
-#include "tach_lib.h"
+#include "tach.h"
 
 tach_state *tach_create_state() {
     tach_state *ret = malloc(sizeof(tach_state));
@@ -12,7 +12,6 @@ tach_state *tach_create_state() {
     tach_object *key;
     tach_object *val;
 
-    tach_create_state_regester(ret->locals[0], "echo", tach_object_make_func(tach_lib_print));
     tach_create_state_regester(ret->locals[0], "print", tach_object_make_func(tach_lib_print));
     tach_create_state_regester(ret->locals[0], "add", tach_object_make_func(tach_lib_add));
     tach_create_state_regester(ret->locals[0], "mul", tach_object_make_func(tach_lib_mul));
@@ -227,8 +226,9 @@ tach_object *tach_lib_ffi(tach_state *state, uint32_t argc, tach_object **args) 
     tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
     tcc_compile_string(s, str);
     tcc_relocate(s, TCC_RELOCATE_AUTO);
-    int(*func)() = tcc_get_symbol(s, name);
-    printf("%d\n", func());
+    tach_object *(*func)(tach_state *, uint32_t, tach_object **args) = tcc_get_symbol(s, name);
+    // tcc_delete(s);
+    tach_set_table(state->locals[state->depth-1], args[0], tach_object_make_func(func));
     return tach_object_make_nil();
 }
 

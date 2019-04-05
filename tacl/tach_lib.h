@@ -1,5 +1,5 @@
 #pragma once
-#include "tach_all.h"
+#include "tach.h"
 
 
 tach_object *tach_lib_print(tach_state *, uint32_t count, tach_object **args);

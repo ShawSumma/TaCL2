@@ -1,5 +1,5 @@
 #pragma once
-#include "tach_all.h"
+#include "tach.h"
 
 tach_program *tach_comp_main(tach_ast_proc *);
 void tach_comp_proc(tach_program *, tach_ast_proc *);

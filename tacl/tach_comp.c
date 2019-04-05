@@ -1,4 +1,4 @@
-#include "tach_comp.h"
+#include "tach.h"
 
 tach_program *tach_read(FILE *f) {
     tach_ast_proc *proc = tach_ast_read_proc(f);

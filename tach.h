@@ -1,7 +1,7 @@
 #pragma once
 
-// #define tach_number_use_double
-#define tach_number_use_gmp
+#define tach_number_use_double
+// #define tach_number_use_gmp
 
 #include "stdlib.h"
 #include "stdio.h"
