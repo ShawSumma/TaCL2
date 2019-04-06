@@ -1,8 +1,0 @@
-proc incr lowvalue {
-    upset $lowvalue [add [get $lowvalue] 1]
-}
-
-set x 10
-print $x
-incr x
-print $x

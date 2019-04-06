@@ -1,5 +1,9 @@
-ffi ffi_fib (
-    #include "tach/bind.c"
-)
+proc fib n {
+    if [lt $n 2] {
+        copy $n
+    } {
+        add [fib [sub $n 1]] [fib [sub $n 2]]
+    }
+}
 
-print [ffi_fib 40]
+print hello [fib 30]

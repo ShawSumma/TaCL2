@@ -1,54 +1,5 @@
 #include "tach.h"
 
-#ifdef tach_number_use_double
-
-tach_number *tach_create_number(double n) {
-    tach_number *ret = malloc(sizeof(tach_number));
-    ret->number = n;
-    return ret;
-}
-tach_number *tach_create_number_string(char *str) {
-    tach_number *ret = malloc(sizeof(tach_number));
-    ret->number = atof(str);
-    return ret;
-}
-tach_number *tach_number_copy(tach_number *n) {
-    tach_number *ret = malloc(sizeof(tach_number));
-    ret->number = n->number;
-    return ret;
-}
-char *tach_number_tostring(tach_number *num) {
-    char *ret = malloc(sizeof(char) * 256);
-    snprintf(ret, 255, "%lf", num->number);
-    return ret;
-}
-bool tach_number_lt(tach_number *a, tach_number *b) {
-    return a->number < b->number;
-}
-bool tach_number_gt(tach_number *a, tach_number *b) {
-    return a->number > b->number;
-}
-void tach_number_add(tach_number *a, tach_number *b) {
-    a->number += b->number;
-}
-void tach_number_sub(tach_number *a, tach_number *b) {
-    a->number -= b->number;
-}
-void tach_number_mul(tach_number *a, tach_number *b) {
-    a->number *= b->number;
-}
-void tach_number_div(tach_number *a, tach_number *b) {
-    a->number /= b->number;
-}
-
-void tach_number_clear(tach_number *num) {
-
-}
-
-#endif
-
-#ifdef tach_number_use_gmp
-
 tach_number *tach_create_number(double n) {
     tach_number *ret = malloc(sizeof(tach_number));
     mpq_init(ret->number);
@@ -92,6 +43,9 @@ void tach_number_div(tach_number *a, tach_number *b) {
 void tach_number_clear(tach_number *num) {
     mpq_clear(num->number);
 }
-#endif
+
+double tach_number_double(tach_number *num) {
+    return mpq_get_d(num->number);
+}
 
 

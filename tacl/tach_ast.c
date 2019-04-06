@@ -1,6 +1,6 @@
 #include "tach.h"
 
-tach_ast_proc *tach_ast_read_proc(FILE *f) {
+tach_ast_proc *tach_ast_read_proc(FILE *f, bool one) {
     tach_ast_proc *ret = malloc(sizeof(tach_ast_proc));
 
     uint32_t alloc = 4;
@@ -13,12 +13,10 @@ tach_ast_proc *tach_ast_read_proc(FILE *f) {
         got = getc(f);
     }
     while (true) {
-        while (got == '\r' || got == '\n' || got == '\t' || got == ' ') {
+        while (got == '\r' || got == '\n' || got == ';' || got == '\t' || got == ' ') {
             got = getc(f);
         }
-        if (got == '}' || got == EOF) {
-            break;
-        }
+        if (got == '}' || got == EOF) break;
         if (count + 4 >= alloc) {
             alloc *= 1.5;
             commands = realloc(commands, sizeof(tach_ast_command *) * alloc);
@@ -26,6 +24,7 @@ tach_ast_proc *tach_ast_read_proc(FILE *f) {
         ungetc(got, f);
         commands[count] = tach_ast_read_command(f);
         count ++;
+        if (one) break;
         got = getc(f);
     }
 
@@ -52,7 +51,7 @@ tach_ast_command *tach_ast_read_command(FILE *f) {
         while (got == '\t' || got == ' ') {
             got = getc(f);
         }
-        if (got == '\n' || got == '\r' || got == ']') break;
+        if (got == '\n' || got == ';' || got == '\r' || got == ']') break;
         ungetc(got, f);
         singles[count] = tach_ast_read_single(f);
         count ++;
@@ -91,7 +90,7 @@ tach_ast_single *tach_ast_read_single(FILE *f) {
         ungetc(got, f);
         tach_ast_single *ret = malloc(sizeof(tach_ast_single));
         ret->type = tach_ast_single_proc;
-        ret->value.proc = tach_ast_read_proc(f);
+        ret->value.proc = tach_ast_read_proc(f, false);
         return ret;
     }
     if (got == '[') {

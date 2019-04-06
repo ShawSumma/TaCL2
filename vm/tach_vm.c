@@ -46,6 +46,7 @@ tach_object *tach_state_get(tach_state *state, tach_object *obj) {
             return got;
         }
     }
+    puts(tach_clib_tostring(obj).str);
     printf("variable not found\n");
     exit(1);
 }

@@ -1,17 +1,12 @@
 #pragma once
 
-#define tach_number_use_double
-// #define tach_number_use_gmp
-
 #include "stdlib.h"
 #include "stdio.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include "string.h"
 
-#ifdef tach_number_use_gmp
 #include <gmp.h>
-#endif
 
 #include <dlfcn.h>
 

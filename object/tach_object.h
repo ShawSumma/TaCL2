@@ -24,7 +24,7 @@ struct tach_point {
 struct tach_other {
     void *value;
     char *type;
-    void (*free)(void *);
+    void (*deleter)(tach_other);
 };
 
 struct tach_object {

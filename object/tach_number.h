@@ -1,21 +1,9 @@
 #pragma once
 #include "tach.h"
 
-#ifdef tach_number_use_double
-
-struct tach_number {
-    double number;
-};
-
-#endif
-
-#ifdef tach_number_use_gmp
-
 struct tach_number {
     mpq_t number;
 };
-
-#endif
 
 tach_number *tach_create_number(double);
 tach_number *tach_create_number_string(char *);
@@ -28,3 +16,4 @@ void tach_number_sub(tach_number *, tach_number *);
 void tach_number_mul(tach_number *, tach_number *);
 void tach_number_div(tach_number *, tach_number *);
 void tach_number_clear(tach_number *);
+double tach_number_double(tach_number *);

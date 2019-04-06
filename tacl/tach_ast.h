@@ -29,7 +29,7 @@ struct tach_ast_proc {
     uint32_t count;
 };
 
-tach_ast_proc *tach_ast_read_proc(FILE *f);
+tach_ast_proc *tach_ast_read_proc(FILE *, bool);
 tach_ast_command *tach_ast_read_command(FILE *f);
 tach_ast_single *tach_ast_read_single(FILE *f);
 char *tach_ast_read_name(FILE *f);

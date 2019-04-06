@@ -1,11 +1,19 @@
 #include "tach.h"
 
 tach_program *tach_read(FILE *f) {
-    tach_ast_proc *proc = tach_ast_read_proc(f);
+    tach_ast_proc *proc = tach_ast_read_proc(f, false);
     tach_program *prog = tach_comp_main(proc);
     tach_ast_free_proc(proc);    
     return prog;
 }
+
+tach_program *tach_read_repl(FILE *f) {
+    tach_ast_proc *proc = tach_ast_read_proc(f, true);
+    tach_program *prog = tach_comp_main(proc);
+    tach_ast_free_proc(proc);    
+    return prog;
+}
+
 
 tach_program *tach_comp_main(tach_ast_proc *proc) {
     tach_program *ret = malloc(sizeof(tach_program));

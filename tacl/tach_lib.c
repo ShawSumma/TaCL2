@@ -21,12 +21,17 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "proc", tach_object_make_func(tach_lib_proc));
     tach_create_state_regester(ret->locals[0], "set", tach_object_make_func(tach_lib_set));
     tach_create_state_regester(ret->locals[0], "upset", tach_object_make_func(tach_lib_upset));
+    tach_create_state_regester(ret->locals[0], "global", tach_object_make_func(tach_lib_global));
     tach_create_state_regester(ret->locals[0], "get", tach_object_make_func(tach_lib_get));
     tach_create_state_regester(ret->locals[0], "set", tach_object_make_func(tach_lib_set));
     tach_create_state_regester(ret->locals[0], "if", tach_object_make_func(tach_lib_if));
     tach_create_state_regester(ret->locals[0], "copy", tach_object_make_func(tach_lib_copy));
     tach_create_state_regester(ret->locals[0], "lt", tach_object_make_func(tach_lib_lt));
-    tach_create_state_regester(ret->locals[0], "ffi", tach_object_make_func(tach_lib_ffi));
+    tach_create_state_regester(ret->locals[0], "gt", tach_object_make_func(tach_lib_gt));
+    tach_create_state_regester(ret->locals[0], "lte", tach_object_make_func(tach_lib_lte));
+    tach_create_state_regester(ret->locals[0], "gte", tach_object_make_func(tach_lib_gte));
+    tach_create_state_regester(ret->locals[0], "eq", tach_object_make_func(tach_lib_eq));
+    tach_create_state_regester(ret->locals[0], "neq", tach_object_make_func(tach_lib_neq));
     tach_create_state_regester(ret->locals[0], "true", tach_object_make_logical(true));
     tach_create_state_regester(ret->locals[0], "false", tach_object_make_logical(false));
 
@@ -50,9 +55,49 @@ tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args
 tach_object *tach_lib_lt(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
         fprintf(stderr, "lt takes 2 args\n");
-        exit(1);
+        return NULL;
     }
     return tach_object_make_logical(tach_clib_compare(args[0], args[1]) == -1);
+}
+
+tach_object *tach_lib_gt(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr, "gt takes 2 args\n");
+        return NULL;
+    }
+    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) == 1);
+}
+
+tach_object *tach_lib_gte(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr, "gte takes 2 args\n");
+        return NULL;
+    }
+    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) != -1);
+}
+
+tach_object *tach_lib_lte(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr, "lte takes 2 args\n");
+        return NULL;
+    }
+    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) != 1);
+}
+
+tach_object *tach_lib_eq(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr, "gq takes 2 args\n");
+        return NULL;
+    }
+    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) == 0);
+}
+
+tach_object *tach_lib_neq(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr, "neq takes 2 args\n");
+        return NULL;
+    }
+    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) != 0);
 }
 
 tach_object *tach_lib_add(tach_state *state, uint32_t argc, tach_object **args) {
@@ -62,8 +107,8 @@ tach_object *tach_lib_add(tach_state *state, uint32_t argc, tach_object **args) 
             tach_number_add(ret, args[i]->value.number);
         }
         else {
-            fprintf(stderr, "add only takes numbers");
-            exit(1);
+            fprintf(stderr, "add only takes numbers\n");
+            return NULL;
         }
     }
     return tach_object_make_number(ret);
@@ -76,8 +121,8 @@ tach_object *tach_lib_mul(tach_state *state, uint32_t argc, tach_object **args) 
             tach_number_mul(ret, args[i]->value.number);
         }
         else {
-            fprintf(stderr, "mul only takes numbers");
-            exit(1);
+            fprintf(stderr, "mul only takes numbers\n");
+            return NULL;
         }
     }
     return tach_object_make_number(ret);
@@ -85,12 +130,12 @@ tach_object *tach_lib_mul(tach_state *state, uint32_t argc, tach_object **args) 
 
 tach_object *tach_lib_sub(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc < 1) {
-        fprintf(stderr, "sub takes 1 or more args");
-        exit(1);
+        fprintf(stderr, "sub takes 1 or more args\n");
+        return NULL;
     }
     if (args[0]->type != tach_object_number) {
-        fprintf(stderr, "sub only takes numbers");
-        exit(1);
+        fprintf(stderr, "sub only takes numbers\n");
+        return NULL;
     }
     tach_number *ret = tach_number_copy(args[0]->value.number);
     for (uint32_t i = 1; i < argc; i++) {
@@ -103,12 +148,12 @@ tach_object *tach_lib_sub(tach_state *state, uint32_t argc, tach_object **args) 
 
 tach_object *tach_lib_div(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc < 1) {
-        fprintf(stderr, "div takes 1 or more args");
-        exit(1);
+        fprintf(stderr, "div takes 1 or more args\n");
+        return NULL;
     }
     if (args[0]->type != tach_object_number) {
-        fprintf(stderr, "div only takes numbers");
-        exit(1);
+        fprintf(stderr, "div only takes numbersn");
+        return NULL;
     }
     tach_number *ret = tach_number_copy(args[0]->value.number);
     for (uint32_t i = 1; i < argc; i++) {
@@ -121,8 +166,8 @@ tach_object *tach_lib_div(tach_state *state, uint32_t argc, tach_object **args) 
 
 tach_object *tach_lib_get(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 1) {
-        fprintf(stderr, "get takes 1 arg");
-        exit(1);
+        fprintf(stderr, "get takes 1 arg\n");
+        return NULL;
     }
     tach_object *obj = tach_state_get(state, args[0]);
     obj->refc ++;
@@ -131,8 +176,8 @@ tach_object *tach_lib_get(tach_state *state, uint32_t argc, tach_object **args) 
 
 tach_object *tach_lib_call(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 1) {
-        fprintf(stderr, "call takes 1 arg");
-        exit(1);
+        fprintf(stderr, "call takes 1 arg\n");
+        return NULL;
     }
     tach_call(state, args[0], 0, NULL);
     // return tach_object_make_nil();
@@ -141,8 +186,8 @@ tach_object *tach_lib_call(tach_state *state, uint32_t argc, tach_object **args)
 
 tach_object *tach_lib_proc(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc < 2) {
-        fprintf(stderr, "proc takes 2 or more args");
-        exit(1);
+        fprintf(stderr, "proc takes 2 or more args\n");
+        return NULL;
     }
     tach_object *obj = args[argc-1];
     obj->value.point.argc = argc-2;
@@ -157,8 +202,8 @@ tach_object *tach_lib_proc(tach_state *state, uint32_t argc, tach_object **args)
 
 tach_object *tach_lib_set(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
-        fprintf(stderr, "set takes 2 args");
-        exit(1);
+        fprintf(stderr, "set takes 2 args\n");
+        return NULL;
     }
     tach_set_table(state->locals[state->depth-1], args[0], args[1]);
     return tach_object_make_nil();
@@ -166,17 +211,26 @@ tach_object *tach_lib_set(tach_state *state, uint32_t argc, tach_object **args) 
 
 tach_object *tach_lib_upset(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
-        fprintf(stderr, "upset takes 2 args");
-        exit(1);
+        fprintf(stderr, "upset takes 2 args\n");
+        return NULL;
     }
     tach_set_table(state->locals[state->depth-2], args[0], args[1]);
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_global(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr, "global takes 2 args\n");
+        return NULL;
+    }
+    tach_set_table(state->locals[0], args[0], args[1]);
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_if(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2 && argc != 3) {
         fprintf(stderr, "if takes 2 or 3 args\n");
-        exit(1);
+        return NULL;
     }
     bool first = true;
     if (args[0]->type == tach_object_number && args[0]->value.number == 0) {
@@ -201,34 +255,16 @@ tach_object *tach_lib_if(tach_state *state, uint32_t argc, tach_object **args) {
             tach_call(state, args[2], 0, NULL);
         }
     }
-    // return tach_object_make_nil();
     return NULL;
 }
 
 tach_object *tach_lib_copy(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc == 0) {
-        fprintf(stderr, "copy takes 1 or more arguments");
-        exit(1);
+        fprintf(stderr, "copy takes 1 or more arguments\n");
+        return NULL;
     }
     args[argc-1]->refc ++;
     return args[argc-1];
 }
 
-tach_object *tach_lib_ffi(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "ffi takes 1 or more arguments");
-        exit(1);
-    }
-    char *name = args[0]->value.string.str;
-    char *str = args[1]->value.string.str;
-    TCCState *s = tcc_new();
-    tcc_add_include_path(s, "./");
-    tcc_set_output_type(s, TCC_OUTPUT_MEMORY);
-    tcc_compile_string(s, str);
-    tcc_relocate(s, TCC_RELOCATE_AUTO);
-    tach_object *(*func)(tach_state *, uint32_t, tach_object **args) = tcc_get_symbol(s, name);
-    // tcc_delete(s);
-    tach_set_table(state->locals[state->depth-1], args[0], tach_object_make_func(func));
-    return tach_object_make_nil();
-}
 

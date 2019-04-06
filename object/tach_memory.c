@@ -28,6 +28,9 @@ void tach_free_object(tach_object *obj) {
             tach_free_number(obj->value.number);
             break;
         }
+        case tach_object_other: {
+            obj->value.other.deleter(obj->value.other);
+        }
         default: {
             break;
         }
