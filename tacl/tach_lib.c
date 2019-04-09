@@ -9,35 +9,62 @@ tach_state *tach_create_state() {
     ret->stack = tach_create_vector();
     ret->calls[0] = -1;
     ret->locals[0] = tach_create_table();
-    tach_object *key;
-    tach_object *val;
 
+    // tach_create_state_regester(ret->locals[0], "import", tach_object_make_func(tach_lib_import));
+    
     tach_create_state_regester(ret->locals[0], "print", tach_object_make_func(tach_lib_print));
+    
     tach_create_state_regester(ret->locals[0], "add", tach_object_make_func(tach_lib_add));
     tach_create_state_regester(ret->locals[0], "mul", tach_object_make_func(tach_lib_mul));
     tach_create_state_regester(ret->locals[0], "div", tach_object_make_func(tach_lib_div));
     tach_create_state_regester(ret->locals[0], "sub", tach_object_make_func(tach_lib_sub));
-    tach_create_state_regester(ret->locals[0], "exec", tach_object_make_func(tach_lib_call));
+
+    tach_create_state_regester(ret->locals[0], "call", tach_object_make_func(tach_lib_call));
     tach_create_state_regester(ret->locals[0], "proc", tach_object_make_func(tach_lib_proc));
+
     tach_create_state_regester(ret->locals[0], "set", tach_object_make_func(tach_lib_set));
     tach_create_state_regester(ret->locals[0], "upset", tach_object_make_func(tach_lib_upset));
     tach_create_state_regester(ret->locals[0], "global", tach_object_make_func(tach_lib_global));
     tach_create_state_regester(ret->locals[0], "get", tach_object_make_func(tach_lib_get));
     tach_create_state_regester(ret->locals[0], "set", tach_object_make_func(tach_lib_set));
+
     tach_create_state_regester(ret->locals[0], "if", tach_object_make_func(tach_lib_if));
+
     tach_create_state_regester(ret->locals[0], "copy", tach_object_make_func(tach_lib_copy));
+    
     tach_create_state_regester(ret->locals[0], "lt", tach_object_make_func(tach_lib_lt));
     tach_create_state_regester(ret->locals[0], "gt", tach_object_make_func(tach_lib_gt));
     tach_create_state_regester(ret->locals[0], "lte", tach_object_make_func(tach_lib_lte));
     tach_create_state_regester(ret->locals[0], "gte", tach_object_make_func(tach_lib_gte));
     tach_create_state_regester(ret->locals[0], "eq", tach_object_make_func(tach_lib_eq));
     tach_create_state_regester(ret->locals[0], "neq", tach_object_make_func(tach_lib_neq));
+
     tach_create_state_regester(ret->locals[0], "true", tach_object_make_logical(true));
     tach_create_state_regester(ret->locals[0], "false", tach_object_make_logical(false));
 
     return ret;
 }
 
+// tach_object *tach_lib_import(tach_state *state, uint32_t argc, tach_object **args) {
+//     if (argc != 1 || args[0]->type != tach_object_string) {
+//         fprintf(stderr, "import takes 1 string\n");
+//         return NULL;
+//     }
+//     FILE *f = fopen(args[0]->value.string.str, "r");
+//     if (f == NULL) {
+//         fprintf(stderr, "import cannot find file");
+//         return NULL;
+//     }
+//     tach_program *prog = tach_read(f);
+//     fclose(f);
+//     uint32_t pl = state->place;
+//     state->place = 0;
+//     tach_program_run(state, prog);
+//     tach_free_program(prog);
+//     state->place = pl;
+//     tach_vector_pop(state->stack);
+//     return tach_object_make_nil();
+// }
 
 tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args) {
     for (uint32_t i = 0; i < argc; i++) {

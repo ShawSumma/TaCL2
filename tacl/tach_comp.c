@@ -43,6 +43,14 @@ void tach_comp_proc(tach_program *prog, tach_ast_proc *proc) {
         }
         tach_comp_command(prog, proc->commands[i]);
     }
+    if (proc->count == 0) {
+        tach_program_realloc(prog);
+        prog->opcodes[prog->opcount].type = tach_opcode_push;
+        prog->opcodes[prog->opcount].value = prog->objcount;
+        prog->objs[prog->objcount] = tach_object_make_nil();
+        prog->opcount ++;
+        prog->objcount ++;
+    }
     tach_program_realloc(prog);
     prog->opcodes[begin].value = prog->opcount;    
     prog->opcodes[prog->opcount].type = tach_opcode_ret;

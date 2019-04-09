@@ -6,4 +6,4 @@ proc fib n {
     }
 }
 
-print hello [fib 30]
+print [fib 30]

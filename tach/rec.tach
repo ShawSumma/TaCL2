@@ -1,0 +1,6 @@
+proc rec n {
+    if [gt $n 0] {
+        rec [sub $n 1]
+    }
+}
+rec 10000000
