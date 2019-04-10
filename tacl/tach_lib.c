@@ -11,6 +11,7 @@ tach_state *tach_create_state() {
     ret->locals[0] = tach_create_table();
 
     tach_create_state_regester(ret->locals[0], "export", tach_object_make_func(tach_lib_export));
+    tach_create_state_regester(ret->locals[0], "import", tach_object_make_func(tach_lib_import));
     
     tach_create_state_regester(ret->locals[0], "len", tach_object_make_func(tach_lib_len));
     tach_create_state_regester(ret->locals[0], "str", tach_object_make_func(tach_lib_str));
@@ -102,7 +103,7 @@ tach_object *tach_lib_len(tach_state *state, uint32_t argc, tach_object **args) 
 }
 
 tach_object *tach_lib_export(tach_state *state, uint32_t argc, tach_object **args) {
-    FILE *f = fopen(args[0]->value.string.str, "w");
+    FILE *f = fopen(args[0]->value.string.str, "wb");
     for (uint32_t i = 1; i < argc; i++) {
         tach_export_object_to_file(args[i], f);
     }
@@ -110,6 +111,12 @@ tach_object *tach_lib_export(tach_state *state, uint32_t argc, tach_object **arg
     return tach_object_make_nil();
 }
 
+tach_object *tach_lib_import(tach_state *state, uint32_t argc, tach_object **args) {
+    FILE *f = fopen(args[0]->value.string.str, "rb");
+    tach_object *ret = tach_export_file_to_object(f);
+    fclose(f);
+    return ret;
+}
 
 tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args) {
     for (uint32_t i = 0; i < argc; i++) {

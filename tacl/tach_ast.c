@@ -22,6 +22,7 @@ tach_ast_proc *tach_ast_read_proc(FILE *f, bool one) {
             commands = realloc(commands, sizeof(tach_ast_command *) * alloc);
         }
         ungetc(got, f);
+        ungetc('\n', f);
         commands[count] = tach_ast_read_command(f);
         count ++;
         if (one) break;
@@ -42,16 +43,29 @@ tach_ast_command *tach_ast_read_command(FILE *f) {
 
     tach_ast_single **singles = malloc(sizeof(tach_ast_single *) * alloc);
 
+    char orig = getc(f);
     char got = getc(f);
     while (got != '}' && got != EOF) {
         if (count + 4 > alloc) {
             alloc *= 1.5;
             singles = realloc(singles, sizeof(tach_ast_single *) * alloc);
         }
-        while (got == '\t' || got == ' ') {
-            got = getc(f);
+        if (orig == '[') {
+            while (got == '\t' || got == ' ' || got == '\n' || got == '\r') {
+                got = getc(f);
+            }
+            if (got == ']') {
+                break;
+            }
         }
-        if (got == '\n' || got == ';' || got == '\r' || got == ']') break;
+        else {
+            while (got == '\t' || got == ' ') {
+                got = getc(f);
+            }
+            if (got == '\n' || got == '\r' || got == ';') {
+                break;
+            }
+        }
         ungetc(got, f);
         singles[count] = tach_ast_read_single(f);
         count ++;
@@ -96,6 +110,7 @@ tach_ast_single *tach_ast_read_single(FILE *f) {
     if (got == '[') {
         tach_ast_single *ret = malloc(sizeof(tach_ast_single));
         ret->type = tach_ast_single_command;
+        ungetc('[', f);
         ret->value.command = tach_ast_read_command(f);
         return ret;
     }

@@ -33,4 +33,5 @@ tach_object *tach_lib_new_table(tach_state *, uint32_t count, tach_object **args
 tach_object *tach_lib_new_vector(tach_state *, uint32_t count, tach_object **args);
 
 tach_object *tach_lib_export(tach_state *, uint32_t count, tach_object **args);
+tach_object *tach_lib_import(tach_state *, uint32_t count, tach_object **args);
 

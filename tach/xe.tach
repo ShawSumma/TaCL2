@@ -1,1 +1,11 @@
-set vector-new [new vector]
+export (out/out.export.tach) [
+    [new table]
+    0 zero
+    1 one
+    2 two
+    3 three
+    4 four
+]
+
+set got [import (out/out.export.tach)]
+print [got 1]

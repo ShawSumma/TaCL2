@@ -2,3 +2,5 @@
 perf*
 tacl/tacl.so
 tachvm
+out/*
+out
