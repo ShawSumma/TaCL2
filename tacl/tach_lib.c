@@ -10,6 +10,8 @@ tach_state *tach_create_state() {
     ret->calls[0] = -1;
     ret->locals[0] = tach_create_table();
 
+    tach_create_state_regester(ret->locals[0], "export", tach_object_make_func(tach_lib_export));
+    
     tach_create_state_regester(ret->locals[0], "len", tach_object_make_func(tach_lib_len));
     tach_create_state_regester(ret->locals[0], "str", tach_object_make_func(tach_lib_str));
 
@@ -98,6 +100,16 @@ tach_object *tach_lib_len(tach_state *state, uint32_t argc, tach_object **args) 
     }
     return tach_object_make_number(tach_create_number(args[0]->value.string.count));
 }
+
+tach_object *tach_lib_export(tach_state *state, uint32_t argc, tach_object **args) {
+    FILE *f = fopen(args[0]->value.string.str, "w");
+    for (uint32_t i = 1; i < argc; i++) {
+        tach_export_object_to_file(args[i], f);
+    }
+    fclose(f);
+    return tach_object_make_nil();
+}
+
 
 tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args) {
     for (uint32_t i = 0; i < argc; i++) {

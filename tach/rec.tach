@@ -6,4 +6,4 @@ proc fac n {
     }
 }
 
-print [len [str [fac 200000]]]
+print [fac 20]
