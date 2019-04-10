@@ -30,6 +30,11 @@ void tach_free_object(tach_object *obj) {
         }
         case tach_object_other: {
             obj->value.other.deleter(obj->value.other);
+            break;
+        }
+        case tach_object_table: {
+            tach_free_table(obj->value.table);
+            break;
         }
         default: {
             break;

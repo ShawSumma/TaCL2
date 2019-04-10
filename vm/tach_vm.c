@@ -29,6 +29,9 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
         state->place = fn->value.point.point;
         state->depth ++;
     }
+    else if (fn->type == tach_object_table) {
+        tach_call(state, tach_get_table(fn->value.table, args[0]), count-1, args+1);
+    }
     else {
         fprintf(stderr, "call error!\n");
         exit(1);

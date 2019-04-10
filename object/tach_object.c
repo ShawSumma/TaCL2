@@ -56,6 +56,13 @@ tach_object *tach_object_make_vector(tach_vector *v) {
     return ret;
 }
 
+tach_object *tach_object_make_table(tach_table *t) {
+    tach_object *ret = tach_object_alloc();
+    ret->type = tach_object_table;
+    ret->value.table = t;
+    return ret;
+}
+
 tach_string tach_create_string(char *str) {
     tach_string ret;
     ret.count = strlen(str);

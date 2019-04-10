@@ -10,8 +10,9 @@ tach_state *tach_create_state() {
     ret->calls[0] = -1;
     ret->locals[0] = tach_create_table();
 
-    // tach_create_state_regester(ret->locals[0], "import", tach_object_make_func(tach_lib_import));
-    
+    tach_create_state_regester(ret->locals[0], "len", tach_object_make_func(tach_lib_len));
+    tach_create_state_regester(ret->locals[0], "str", tach_object_make_func(tach_lib_str));
+
     tach_create_state_regester(ret->locals[0], "print", tach_object_make_func(tach_lib_print));
     
     tach_create_state_regester(ret->locals[0], "add", tach_object_make_func(tach_lib_add));
@@ -42,29 +43,61 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "true", tach_object_make_logical(true));
     tach_create_state_regester(ret->locals[0], "false", tach_object_make_logical(false));
 
+    tach_table *newlocal = tach_create_table();
+    tach_create_state_regester(newlocal, "table", tach_object_make_func(tach_lib_new_table));
+    tach_create_state_regester(newlocal, "vector", tach_object_make_func(tach_lib_new_vector));
+
+    tach_create_state_regester(ret->locals[0], "new", tach_object_make_table(newlocal));
+
     return ret;
 }
 
-// tach_object *tach_lib_import(tach_state *state, uint32_t argc, tach_object **args) {
-//     if (argc != 1 || args[0]->type != tach_object_string) {
-//         fprintf(stderr, "import takes 1 string\n");
-//         return NULL;
-//     }
-//     FILE *f = fopen(args[0]->value.string.str, "r");
-//     if (f == NULL) {
-//         fprintf(stderr, "import cannot find file");
-//         return NULL;
-//     }
-//     tach_program *prog = tach_read(f);
-//     fclose(f);
-//     uint32_t pl = state->place;
-//     state->place = 0;
-//     tach_program_run(state, prog);
-//     tach_free_program(prog);
-//     state->place = pl;
-//     tach_vector_pop(state->stack);
-//     return tach_object_make_nil();
-// }
+tach_object *tach_lib_new_vector(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_vector *vec = tach_create_vector();
+    for (uint32_t i = 0; i < argc; i++) {
+        tach_vector_push(vec, args[i]);
+    }
+    return tach_object_make_vector(vec);
+}
+
+tach_object *tach_lib_new_table(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_table *vec = tach_create_table();
+    for (uint32_t i = 0; i < argc; i+=2) {
+        tach_set_table(vec, args[i], args[i+1]);
+    }
+    return tach_object_make_table(vec);
+}
+
+tach_object *tach_lib_str(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_string *strs = malloc(sizeof(tach_string) * argc);
+    uint32_t len = 0;
+    for (uint32_t i = 0; i < argc; i++) {
+        strs[i] = tach_clib_tostring(args[i]);
+        len += strs[i].count;
+    }
+    char *c = malloc(sizeof(char) * (len+1));
+    for (uint32_t i = 0, pl = 0; i < argc; i++) {
+        for (uint32_t si = 0; si < strs[i].count; si++, pl++){
+            c[pl] = strs[i].str[si];
+        }
+        free(strs[i].str);
+    }
+    free(strs);
+    c[len] = '\0';
+    tach_string str;
+    str.str = c;
+    str.alloc = len + 1;
+    str.count = len;
+    return tach_object_make_string(str);
+}
+
+tach_object *tach_lib_len(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 1) {
+        fprintf(stderr, "len takes 1 arg\n");
+        return NULL;
+    }
+    return tach_object_make_number(tach_create_number(args[0]->value.string.count));
+}
 
 tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args) {
     for (uint32_t i = 0; i < argc; i++) {

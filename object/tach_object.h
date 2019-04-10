@@ -34,6 +34,7 @@ struct tach_object {
         tach_func func;
         tach_number *number;
         tach_vector *vector;
+        tach_table *table;
         tach_string string;
         tach_other other;
     } value;
@@ -47,6 +48,7 @@ struct tach_object {
         tach_object_string,
         tach_object_vector,
         tach_object_other,
+        tach_object_table,
     } type;
 };
 
@@ -72,7 +74,8 @@ tach_object *tach_object_make_logical(bool);
 tach_object *tach_object_make_number(tach_number *);
 tach_object *tach_object_make_point(uint32_t);
 tach_object *tach_object_make_func(tach_func);
-tach_object *tach_object_make_string(tach_string str);
-tach_object *tach_object_make_vector(tach_vector *vec);
+tach_object *tach_object_make_string(tach_string);
+tach_object *tach_object_make_vector(tach_vector *);
+tach_object *tach_object_make_table(tach_table *);
 tach_object *tach_object_make_other(tach_other);
 
