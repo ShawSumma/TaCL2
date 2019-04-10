@@ -60,7 +60,9 @@ void tach_comp_proc(tach_program *prog, tach_ast_proc *proc) {
 
 void tach_comp_command(tach_program *prog, tach_ast_command *cmd) {
     if (cmd->count != 0) {
-        cmd->singles[0]->type = tach_ast_single_name;
+        if (cmd->singles[0]->type == tach_ast_single_string) {
+            cmd->singles[0]->type = tach_ast_single_name;
+        }
         for (uint32_t i = 0; i < cmd->count; i++) {
             tach_comp_single(prog, cmd->singles[i]);
         }

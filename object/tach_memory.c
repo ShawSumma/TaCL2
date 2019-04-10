@@ -1,7 +1,6 @@
 #include "tach.h"
 
 void tach_free_object(tach_object *obj) {
-    // printf("%p\n", obj);
     obj->refc --;
     if (obj->refc != 0) {
         return;
@@ -52,6 +51,11 @@ void tach_free_vector(tach_vector *vec) {
     for (uint32_t i = 0; i < vec->count; i++) {
         tach_free_object(vec->objects[i]);
     }
+    // printf("%d\t%d\n", vec->count, vec->alloc);
+    // for (uint32_t i = vec->count; i < vec->alloc; i++) {
+    //     printf("%p\n", vec->objects[i]);
+        // free(vec->objects[i]);
+    // }
     free(vec->objects);
     free(vec);
 }

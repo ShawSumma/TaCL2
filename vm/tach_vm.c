@@ -29,8 +29,25 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
         state->place = fn->value.point.point;
         state->depth ++;
     }
-    else if (fn->type == tach_object_table) {
-        tach_call(state, tach_get_table(fn->value.table, args[0]), count-1, args+1);
+    else if (fn->type == tach_object_table || fn->type == tach_object_vector) {
+        while (fn->type == tach_object_table || fn->type == tach_object_vector) {
+            if (fn->type == tach_object_table) {
+                fn = tach_get_table(fn->value.table, args[0]);
+            }
+            else {
+                if (args[0]->type != tach_object_number) {
+                    fprintf(stderr, "vectors take ints as indexes\n");
+                    exit(1);
+                }
+                uint32_t pl = tach_number_double(args[0]->value.number);
+                if (pl >= fn->value.vector->count) {
+                    fprintf(stderr, "vector index out of range\n");
+                }
+                fn = fn->value.vector->objects[pl];
+            }
+            args ++;
+        }
+        tach_vector_push(state->stack, fn);
     }
     else {
         fprintf(stderr, "call error!\n");
@@ -85,11 +102,15 @@ void tach_program_run(tach_state *state, tach_program *prog) {
                     args[argc-i-1] = arg;
                     tach_vector_pop(state->stack);
                 }
-                tach_object *fn = tach_vector_pop(state->stack);
+                
+                tach_object *fn = tach_vector_last(state->stack);
+                fn->refc ++;
+                tach_vector_pop(state->stack);
                 tach_call(state, fn, argc, args);
                 for (uint32_t i = 0; i < argc; i++) {
                     tach_free_object(args[i]);
                 }
+                tach_free_object(fn);
                 free(args);
                 break;
             }

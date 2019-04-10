@@ -47,8 +47,8 @@ struct tach_object {
         tach_object_func,
         tach_object_string,
         tach_object_vector,
-        tach_object_other,
         tach_object_table,
+        tach_object_other,
     } type;
 };
 

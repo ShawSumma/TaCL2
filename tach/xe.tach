@@ -1,1 +1,1 @@
-print [new vector 1 2 3]
+set vector-new [new vector]

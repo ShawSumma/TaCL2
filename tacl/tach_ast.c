@@ -135,7 +135,7 @@ char *tach_ast_read_name(FILE *f) {
         uint32_t alloc = 16;
         char *name = malloc(sizeof(char) * alloc);
         uint32_t place = 0;
-        while ((got >= 'a' && got <= 'z') || got == '_') {
+        while ((got >= 'a' && got <= 'z') || got == '_' || got == '-') {
             if (place + 4 > alloc) {
                 alloc *= 1.5;
                 name = realloc(name, sizeof(char) * alloc);
