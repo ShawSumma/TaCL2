@@ -17,5 +17,7 @@ struct tach_file {
 char tach_getc(tach_file *);
 tach_file *tach_fopen(char *, char *);
 tach_file *tach_sfopen(tach_string);
+tach_file *tach_cfopen(char *);
 void tach_fclose(tach_file *);
 void tach_ungetc(char, tach_file *);
+void tach_fprintf(tach_file *, char *, ...);

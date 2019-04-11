@@ -19,21 +19,21 @@ void tach_export_object_to_file(tach_object *obj, tach_file *f) {
             break;
         }
         case tach_object_nil: {
-            fprintf(f, "#Z");
+            tach_fprintf(f, "#Z");
             break;
         }   
         case tach_object_logical: {
-            fprintf(f, obj->value.logical ? "#T" : "#F");
+            tach_fprintf(f, obj->value.logical ? "#T" : "#F");
             break;
         }
         case tach_object_number: {
             char *num = tach_number_tostring(obj->value.number);
-            fprintf(f, "N%lu:%s", strlen(num), num);
+            tach_fprintf(f, "N%lu:%s", strlen(num), num);
             free(num);
             break;
         }
         case tach_object_string: {
-            fprintf(f, "S%u:%s", obj->value.string.count,  obj->value.string.str);
+            tach_fprintf(f, "S%u:%s", obj->value.string.count,  obj->value.string.str);
             break;
         }
         case tach_object_func: {
@@ -53,7 +53,7 @@ void tach_export_object_to_file(tach_object *obj, tach_file *f) {
             break;
         }
     }
-    fprintf(f, "%d:", obj->refc);
+    tach_fprintf(f, "%d:", obj->refc);
 }
 
 tach_object *tach_export_file_to_object(tach_file *f) {
@@ -156,7 +156,7 @@ tach_object *tach_export_file_to_object(tach_file *f) {
 }
 
 void tach_export_vector_to_file(tach_vector *v, tach_file *f) {
-    fprintf(f, "V%d:", v->count);
+    tach_fprintf(f, "V%d:", v->count);
     for (uint32_t i = 0; i < v->count; i++) {
         tach_export_object_to_file(v->objects[i], f);
     }
@@ -173,26 +173,26 @@ tach_vector *tach_export_file_to_vector(tach_file *f) {
 }
 
 void tach_export_table_to_file(tach_table *t, tach_file *f) {
-    fprintf(f, "T");
+    tach_fprintf(f, "T");
     if (t->key != NULL && t->value != NULL) {
         tach_export_object_to_file(t->key, f);
         tach_export_object_to_file(t->value, f);
     }
     else {
-        fprintf(f, "#N");
-        fprintf(f, "#N");
+        tach_fprintf(f, "#N");
+        tach_fprintf(f, "#N");
     }
     if (t->left != NULL) {
         tach_export_table_to_file(t->left, f);
     }
     else {
-        fprintf(f, "N");
+        tach_fprintf(f, "N");
     }
     if (t->right != NULL) {
         tach_export_table_to_file(t->right, f);
     }
     else {
-        fprintf(f, "N");
+        tach_fprintf(f, "N");
     }
 }
 
@@ -209,11 +209,11 @@ tach_table *tach_export_file_to_table(tach_file *f) {
 }
 
 void tach_export_program_to_file(tach_program *prog, tach_file *f) {
-    fprintf(f, "%d:", prog->opcount);
+    tach_fprintf(f, "%d:", prog->opcount);
     for (uint32_t i = 0; i < prog->opcount; i++) {
-        fprintf(f, "%d:%d:", prog->opcodes[i].type, prog->opcodes[i].value);
+        tach_fprintf(f, "%d:%d:", prog->opcodes[i].type, prog->opcodes[i].value);
     }
-    fprintf(f, "%d:", prog->objcount);
+    tach_fprintf(f, "%d:", prog->objcount);
     for (uint32_t i = 0; i < prog->objcount; i++) {
         tach_export_object_to_file(prog->objs[i], f);
     }
@@ -245,7 +245,7 @@ void tach_export_func_to_file(tach_func func, tach_file *f) {
         fprintf(stderr, "unknown function\n");
         exit(1);
     }
-    fprintf(f, "F%lu:%s", strlen(name), name);
+    tach_fprintf(f, "F%lu:%s", strlen(name), name);
 }
 
 tach_func tach_export_file_to_func(tach_file *f) {
@@ -266,9 +266,9 @@ tach_func tach_export_file_to_func(tach_file *f) {
 }
 
 void tach_export_point_to_file(tach_point point, tach_file *f) {
-    fprintf(f, "P");
-    fprintf(f, "%d:", point.point);
-    fprintf(f, "%d:", point.argc);
+    tach_fprintf(f, "P");
+    tach_fprintf(f, "%d:", point.point);
+    tach_fprintf(f, "%d:", point.argc);
     for (uint32_t i = 0; i < point.argc; i++) {
         tach_export_object_to_file(point.args[i], f);
     }
@@ -286,10 +286,10 @@ tach_point tach_export_file_to_point(tach_file *f) {
 }
 
 void tach_export_state_to_file(tach_state *prog, tach_file *f) {
-    fprintf(f, "%d:", prog->place);
-    fprintf(f, "%d:", prog->depth);
+    tach_fprintf(f, "%d:", prog->place);
+    tach_fprintf(f, "%d:", prog->depth);
     for (uint32_t i = 0; i < prog->depth; i++) {
-        fprintf(f, "%d:", prog->calls[i]);
+        tach_fprintf(f, "%d:", prog->calls[i]);
     }
     for (uint32_t i = 0; i < prog->depth; i++) {
         tach_export_table_to_file(prog->locals[i], f);
