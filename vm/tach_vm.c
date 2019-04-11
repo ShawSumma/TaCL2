@@ -72,7 +72,6 @@ tach_object *tach_state_get(tach_state *state, tach_object *obj) {
 }
 
 void tach_program_run(tach_state *state, tach_program *prog) {
-    state->place = 0;
     state->program = prog;
     while (state->place < prog->opcount) {
         tach_opcode op = prog->opcodes[state->place];

@@ -33,6 +33,7 @@ void tach_comp_proc(tach_program *prog, tach_ast_proc *proc) {
     tach_program_realloc(prog);   
     uint32_t begin = prog->opcount;
     prog->opcodes[prog->opcount].type = tach_opcode_proc;
+    prog->opcodes[prog->opcount].value = 0;
     prog->opcount ++;
     for (uint32_t i = 0; i < proc->count; i++) {
         if (i != 0) {

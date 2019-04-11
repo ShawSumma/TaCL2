@@ -8,7 +8,6 @@ struct tach_state {
     uint32_t *calls;
     uint32_t callalloc;
     uint32_t depth;
-    uint32_t uplevels;
     uint32_t place;
 };
 

@@ -1,0 +1,2 @@
+save-state-die (out/out_prog.export.tach)
+print (running save.tach)

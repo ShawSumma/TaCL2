@@ -1,15 +1,14 @@
 #include "tach.h"
 
 long tach_readnum(FILE *f) {
-    char len[32];
-    uint32_t pl = 0;
+    long n = 0;
     char got = getc(f);
     while (got != ':') {
-        len[pl] = got;
-        pl ++;
+        n *= 10;
+        n += got - '0';
         got = getc(f);
     }
-    return atol(len);
+    return n;
 }
 
 void tach_export_object_to_file(tach_object *obj, FILE *f) {
@@ -210,7 +209,7 @@ tach_table *tach_export_file_to_table(FILE *f) {
 void tach_export_program_to_file(tach_program *prog, FILE *f) {
     fprintf(f, "%d:", prog->opcount);
     for (uint32_t i = 0; i < prog->opcount; i++) {
-        fprintf(f, "%d:%d:", prog->opcodes[i].type ,prog->opcodes[i].value);
+        fprintf(f, "%d:%d:", prog->opcodes[i].type, prog->opcodes[i].value);
     }
     fprintf(f, "%d:", prog->objcount);
     for (uint32_t i = 0; i < prog->objcount; i++) {
@@ -221,7 +220,7 @@ void tach_export_program_to_file(tach_program *prog, FILE *f) {
 tach_program *tach_export_file_to_program(FILE *f) {
     tach_program *ret = malloc(sizeof(tach_program));
     ret->opcount = tach_readnum(f);
-    ret->opalloc = ret->opalloc;
+    ret->opalloc = ret->opcount;
     ret->opcodes = malloc(sizeof(tach_opcode) * ret->opalloc);
     for (uint32_t i = 0; i < ret->opcount; i++) {
         ret->opcodes[i].type = tach_readnum(f);
@@ -230,6 +229,8 @@ tach_program *tach_export_file_to_program(FILE *f) {
     ret->objcount = tach_readnum(f);
     ret->objalloc = ret->objcount;
     ret->objs = malloc(sizeof(tach_object *) * ret->objcount);
+    char got = getc(f);
+    ungetc(got, f);
     for (uint32_t i = 0; i < ret->objcount; i++) {
         ret->objs[i] = tach_export_file_to_object(f);
     }
@@ -239,7 +240,7 @@ tach_program *tach_export_file_to_program(FILE *f) {
 void tach_export_func_to_file(tach_func func, FILE *f) {
     char *name = tach_func_to_name(func);
     if (strlen(name) == 0) {
-        fprintf(stderr, "unknown function");
+        fprintf(stderr, "unknown function\n");
         exit(1);
     }
     fprintf(f, "F%lu:%s", strlen(name), name);
@@ -297,5 +298,34 @@ tach_point tach_export_file_to_point(FILE *f) {
     for (uint32_t i = 0; i < ret.argc; i++) {
         ret.args[i] = tach_export_file_to_object(f);
     }
+    return ret;
+}
+
+void tach_export_state_to_file(tach_state *prog, FILE *f) {
+    fprintf(f, "%d:", prog->place);
+    fprintf(f, "%d:", prog->depth);
+    for (uint32_t i = 0; i < prog->depth; i++) {
+        fprintf(f, "%d:", prog->calls[i]);
+    }
+    for (uint32_t i = 0; i < prog->depth; i++) {
+        tach_export_table_to_file(prog->locals[i], f);
+    }
+    tach_export_vector_to_file(prog->stack, f);
+}
+
+tach_state *tach_export_file_to_state(FILE *f) {
+    tach_state *ret = malloc(sizeof(tach_state));
+    ret->place = tach_readnum(f);
+    ret->depth = tach_readnum(f);
+    ret->callalloc = ret->depth + 8;
+    ret->calls = malloc(sizeof(uint32_t) * ret->callalloc);
+    for (uint32_t i = 0; i < ret->depth; i++) {
+        ret->calls[i] = tach_readnum(f);
+    }
+    ret->locals = malloc(sizeof(tach_table *) * ret->callalloc);
+    for (uint32_t i = 0; i < ret->depth; i++) {
+        ret->locals[i] = tach_export_file_to_table(f);
+    }
+    ret->stack = tach_export_file_to_vector(f);
     return ret;
 }

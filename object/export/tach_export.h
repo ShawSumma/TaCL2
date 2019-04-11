@@ -12,7 +12,10 @@ tach_table *tach_export_file_to_table(FILE *);
 tach_func tach_export_file_to_func(FILE *);
 tach_point tach_export_file_to_point(FILE *);
 
-void tach_export_program_to_file(tach_program *prog, FILE *);
+void tach_export_program_to_file(tach_program *, FILE *);
 tach_program *tach_export_file_to_program(FILE *);
+
+void tach_export_state_to_file(tach_state *, FILE *);
+tach_state *tach_export_file_to_state(FILE *);
 
 

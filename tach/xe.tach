@@ -1,3 +1,0 @@
-save-state (out/out_prog.export.tach)
-print 10
-load-state (tach/xe.tach) (out/out_prog.export.tach)
