@@ -53,21 +53,26 @@ void tach_export_object_to_file(tach_object *obj, FILE *f) {
             break;
         }
     }
+    fprintf(f, "%d:", obj->refc);
 }
 
 tach_object *tach_export_file_to_object(FILE *f) {
     char command = getc(f);
+    tach_object *ret;
     switch (command) {
         case '#': {
             switch (getc(f)) {
                 case 'Z': {
-                    return tach_object_make_nil();
+                    ret = tach_object_make_nil();
+                    break;
                 }
                 case 'T': {
-                    return tach_object_make_logical(true);
+                    ret = tach_object_make_logical(true);
+                    break;
                 }
                 case 'F': {
-                    return tach_object_make_logical(false);
+                    ret = tach_object_make_logical(false);
+                    break;
                 }
                 case 'N': {
                     return NULL;
@@ -77,47 +82,43 @@ tach_object *tach_export_file_to_object(FILE *f) {
                     exit(1);
                 }
             }
+            break;
         }
         case 'V': {
-            return tach_object_make_vector(tach_export_file_to_vector(f));
+            ret = tach_object_make_vector(tach_export_file_to_vector(f));
+            break;
         }
         case 'T': {
             ungetc('T', f);
-            return tach_object_make_table(tach_export_file_to_table(f));
+            ret = tach_object_make_table(tach_export_file_to_table(f));
+            break;
         }
         case 'F': {
-            return tach_object_make_func(tach_export_file_to_func(f));
+            ret = tach_object_make_func(tach_export_file_to_func(f));
+            break;
         }
         case 'P': {
-            tach_object *ret = tach_object_alloc();
+            ret = tach_object_alloc();
             ret->type = tach_object_point;
             ret->value.point = tach_export_file_to_point(f);
-            return ret;
+            break;
         }
         case 'N': {
-            char len[32];
-            uint32_t pl = 0;
+            long lenl = tach_readnum(f);
+            char *str = malloc(sizeof(char) * (lenl + 1));
             char got = getc(f);
-            while (got != ':') {
-                len[pl] = got;
-                pl ++;
+            uint32_t strpl = 0;
+            while (strpl < lenl) {
+                str[strpl] = got;
+                strpl ++;
                 got = getc(f);
             }
-            len[pl] = '\0';
-            long lenl = atol(len);
-            char *str = malloc(sizeof(char) * (lenl + 1));
-            char strgot = getc(f);
-            char strpl = 0;
-            while (strpl < lenl) {
-                str[strpl] = strgot;
-                strpl ++;
-                strgot = getc(f);
-            }
-            ungetc(strgot, f);
+            ungetc(got, f);
             str[strpl] = '\0';
             tach_number *num = tach_create_number_string(str);
             free(str);
-            return tach_object_make_number(num);
+            ret = tach_object_make_number(num);
+            break;
         }
         case 'S': {
             char len[32];
@@ -142,13 +143,16 @@ tach_object *tach_export_file_to_object(FILE *f) {
             str[strpl] = '\0';
             tach_string s = tach_create_string(str);
             free(str);
-            return tach_object_make_string(s);
+            ret = tach_object_make_string(s);
+            break;
         }
         default: {
             fprintf(stderr, "unknown type in export to object (%d)\n", command);
             exit(1);
         }
     }
+    ret->refc = tach_readnum(f) + 1000;
+    return ret;
 }
 
 void tach_export_vector_to_file(tach_vector *v, FILE *f) {
@@ -159,16 +163,8 @@ void tach_export_vector_to_file(tach_vector *v, FILE *f) {
 }
 
 tach_vector *tach_export_file_to_vector(FILE *f) {
-    char len[32];
-    uint32_t pl = 0;
-    char got = getc(f);
-    while (got != ':') {
-        len[pl] = got;
-        pl ++;
-        got = getc(f);
-    }
-    len[pl] = '\0';
-    long lenl = atol(len);
+    getc(f);
+    long lenl = tach_readnum(f);
     tach_vector *vec = tach_create_vector();
     for (uint32_t i = 0; i < lenl; i++) {
         tach_vector_push(vec, tach_export_file_to_object(f));
@@ -178,8 +174,14 @@ tach_vector *tach_export_file_to_vector(FILE *f) {
 
 void tach_export_table_to_file(tach_table *t, FILE *f) {
     fprintf(f, "T");
-    tach_export_object_to_file(t->key, f);
-    tach_export_object_to_file(t->value, f);
+    if (t->key != NULL && t->value != NULL) {
+        tach_export_object_to_file(t->key, f);
+        tach_export_object_to_file(t->value, f);
+    }
+    else {
+        fprintf(f, "#N");
+        fprintf(f, "#N");
+    }
     if (t->left != NULL) {
         tach_export_table_to_file(t->left, f);
     }
@@ -273,27 +275,9 @@ void tach_export_point_to_file(tach_point point, FILE *f) {
 }
 
 tach_point tach_export_file_to_point(FILE *f) {
-    char pt[32];
-    char argc[32];
-    char got = getc(f);
-    uint32_t pl = 0;
-    while (got != ':') {
-        pt[pl] = got;
-        pl ++;
-        got = getc(f);
-    }
-    pt[got] = '\0';
-    got = getc(f);
-    pl = 0;
-    while (got != ':') {
-        argc[pl] = got;
-        pl ++;
-        got = getc(f);
-    }
-    argc[got] = '\0';
     tach_point ret;
-    ret.argc = atol(argc);
-    ret.point = atol(pt);
+    ret.point = tach_readnum(f);
+    ret.argc = tach_readnum(f);
     ret.args = malloc(sizeof(tach_object *) * ret.argc);
     for (uint32_t i = 0; i < ret.argc; i++) {
         ret.args[i] = tach_export_file_to_object(f);

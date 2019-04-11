@@ -38,5 +38,5 @@ tach_object *tach_lib_export(tach_state *, uint32_t count, tach_object **args);
 tach_object *tach_lib_import(tach_state *, uint32_t count, tach_object **args);
 tach_object *tach_lib_save_state(tach_state *, uint32_t count, tach_object **args);
 tach_object *tach_lib_save_state_die(tach_state *, uint32_t count, tach_object **args);
-tach_object *tach_lib_load_state(tach_state *, uint32_t count, tach_object **args);
+tach_object *tach_lib_run_state(tach_state *, uint32_t count, tach_object **args);
 

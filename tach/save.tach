@@ -1,2 +1,12 @@
-save-state-die (out/out_prog.export.tach)
-print (running save.tach)
+proc fac n {
+    if [eq $n 0] {
+        copy 1
+    } {
+        if [eq $n 5] {
+            save-state (out/out.export.tach)
+        }
+        mul $n [fac [sub $n 1]]
+    }
+}
+
+print [fac 10]
