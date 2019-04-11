@@ -1,6 +1,3 @@
-export (out/out.export.tach) {
-    print hello world
-}
-
-set hello-world [import (out/out.export.tach)]
-hello-world
+save-state (out/out_prog.export.tach)
+print 10
+load-state (tach/xe.tach) (out/out_prog.export.tach)

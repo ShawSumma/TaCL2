@@ -1,5 +1,17 @@
 #include "tach.h"
 
+long tach_readnum(FILE *f) {
+    char len[32];
+    uint32_t pl = 0;
+    char got = getc(f);
+    while (got != ':') {
+        len[pl] = got;
+        pl ++;
+        got = getc(f);
+    }
+    return atol(len);
+}
+
 void tach_export_object_to_file(tach_object *obj, FILE *f) {
     switch (obj->type) {
         case tach_object_other: {
@@ -196,7 +208,6 @@ tach_table *tach_export_file_to_table(FILE *f) {
 }
 
 void tach_export_program_to_file(tach_program *prog, FILE *f) {
-    fprintf(f, "OP");
     fprintf(f, "%d:", prog->opcount);
     for (uint32_t i = 0; i < prog->opcount; i++) {
         fprintf(f, "%d:%d:", prog->opcodes[i].type ,prog->opcodes[i].value);
@@ -205,6 +216,24 @@ void tach_export_program_to_file(tach_program *prog, FILE *f) {
     for (uint32_t i = 0; i < prog->objcount; i++) {
         tach_export_object_to_file(prog->objs[i], f);
     }
+}
+
+tach_program *tach_export_file_to_program(FILE *f) {
+    tach_program *ret = malloc(sizeof(tach_program));
+    ret->opcount = tach_readnum(f);
+    ret->opalloc = ret->opalloc;
+    ret->opcodes = malloc(sizeof(tach_opcode) * ret->opalloc);
+    for (uint32_t i = 0; i < ret->opcount; i++) {
+        ret->opcodes[i].type = tach_readnum(f);
+        ret->opcodes[i].value = tach_readnum(f);
+    }
+    ret->objcount = tach_readnum(f);
+    ret->objalloc = ret->objcount;
+    ret->objs = malloc(sizeof(tach_object *) * ret->objcount);
+    for (uint32_t i = 0; i < ret->objcount; i++) {
+        ret->objs[i] = tach_export_file_to_object(f);
+    }
+    return ret;
 }
 
 void tach_export_func_to_file(tach_func func, FILE *f) {
@@ -217,16 +246,7 @@ void tach_export_func_to_file(tach_func func, FILE *f) {
 }
 
 tach_func tach_export_file_to_func(FILE *f) {
-    char len[32];
-    uint32_t pl = 0;
-    char got = getc(f);
-    while (got != ':') {
-        len[pl] = got;
-        pl ++;
-        got = getc(f);
-    }
-    len[pl] = '\0';
-    long lenl = atol(len);
+    long lenl = tach_readnum(f);
     char *str = malloc(sizeof(char) * (lenl + 1));
     char strgot = getc(f);
     char strpl = 0;

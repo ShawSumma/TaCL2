@@ -2,6 +2,7 @@
 #include "tach.h"
 
 struct tach_state {
+    tach_program *program;
     tach_vector *stack;
     tach_table **locals;
     uint32_t *calls;

@@ -76,9 +76,14 @@ char *tach_func_to_name(tach_func fn) {
     if (fn == tach_lib_new_vector) {
         return "new_vector";
     }
+    if (fn == tach_lib_save_state) {
+        return "save-state";
+    }
+    if (fn == tach_lib_load_state) {
+        return "load-state";
+    }
     return "";
 }
-//fn == tach_lib_(.*)\)
 
 tach_func tach_name_to_func(char *str) {
     if (!strcmp(str, "export")) {
@@ -156,6 +161,12 @@ tach_func tach_name_to_func(char *str) {
     if (!strcmp(str, "new_vector")) {
         return tach_lib_new_vector;
     }
+    if (!strcmp(str, "save-state")) {
+        return tach_lib_save_state;
+    }
+    if (!strcmp(str, "load-state")) {
+        return tach_lib_load_state;
+    }
     return NULL;
 }
 
@@ -171,6 +182,8 @@ tach_state *tach_create_state() {
 
     tach_create_state_regester(ret->locals[0], "export", tach_object_make_func(tach_lib_export));
     tach_create_state_regester(ret->locals[0], "import", tach_object_make_func(tach_lib_import));
+    tach_create_state_regester(ret->locals[0], "save-state", tach_object_make_func(tach_lib_save_state));
+    tach_create_state_regester(ret->locals[0], "load-state", tach_object_make_func(tach_lib_load_state));
     
     tach_create_state_regester(ret->locals[0], "len", tach_object_make_func(tach_lib_len));
     tach_create_state_regester(ret->locals[0], "str", tach_object_make_func(tach_lib_str));
@@ -211,6 +224,21 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "new", tach_object_make_table(newlocal));
 
     return ret;
+}
+
+tach_object *tach_lib_save_state(tach_state *state, uint32_t argc, tach_object **args) {
+    FILE *f = fopen(args[0]->value.string.str, "wb");
+    tach_export_program_to_file(state->program, f);
+    fclose(f);
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_load_state(tach_state *state, uint32_t argc, tach_object **args) {
+    FILE *f = fopen(args[0]->value.string.str, "rb");
+    tach_program *prog = tach_export_file_to_program(f);
+    tach_free_program(prog);
+    fclose(f);
+    return tach_object_make_nil();
 }
 
 tach_object *tach_lib_new_vector(tach_state *state, uint32_t argc, tach_object **args) {
