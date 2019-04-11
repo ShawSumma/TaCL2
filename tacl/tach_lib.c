@@ -1,5 +1,164 @@
 #include "tach.h"
 
+char *tach_func_to_name(tach_func fn) {
+    if (fn == tach_lib_export) {
+        return "export";
+    }
+    if (fn == tach_lib_import) {
+        return "import";
+    }
+    if (fn == tach_lib_len) {
+        return "len";
+    }
+    if (fn == tach_lib_str) {
+        return "str";
+    }
+    if (fn == tach_lib_print) {
+        return "print";
+    }
+    if (fn == tach_lib_add) {
+        return "add";
+    }
+    if (fn == tach_lib_mul) {
+        return "mul";
+    }
+    if (fn == tach_lib_sub) {
+        return "sub";
+    }
+    if (fn == tach_lib_div) {
+        return "div";
+    }
+    if (fn == tach_lib_lt) {
+        return "lt";
+    }
+    if (fn == tach_lib_lte) {
+        return "lte";
+    }
+    if (fn == tach_lib_gt) {
+        return "gt";
+    }
+    if (fn == tach_lib_gte) {
+        return "gte";
+    }
+    if (fn == tach_lib_eq) {
+        return "eq";
+    }
+    if (fn == tach_lib_neq) {
+        return "neq";
+    }
+    if (fn == tach_lib_if) {
+        return "if";
+    }
+    if (fn == tach_lib_copy) {
+        return "copy";
+    }
+    if (fn == tach_lib_call) {
+        return "call";
+    }
+    if (fn == tach_lib_proc) {
+        return "proc";
+    }
+    if (fn == tach_lib_set) {
+        return "set";
+    }
+    if (fn == tach_lib_upset) {
+        return "upset";
+    }
+    if (fn == tach_lib_global) {
+        return "global";
+    }
+    if (fn == tach_lib_get) {
+        return "get";
+    }
+    if (fn == tach_lib_new_table) {
+        return "new_table";
+    }
+    if (fn == tach_lib_new_vector) {
+        return "new_vector";
+    }
+    return "";
+}
+//fn == tach_lib_(.*)\)
+
+tach_func tach_name_to_func(char *str) {
+    if (!strcmp(str, "export")) {
+        return tach_lib_export;
+    }
+    if (!strcmp(str, "import")) {
+        return tach_lib_import;
+    }
+    if (!strcmp(str, "len")) {
+        return tach_lib_len;
+    }
+    if (!strcmp(str, "str")) {
+        return tach_lib_str;
+    }
+    if (!strcmp(str, "print")) {
+        return tach_lib_print;
+    }
+    if (!strcmp(str, "add")) {
+        return tach_lib_add;
+    }
+    if (!strcmp(str, "mul")) {
+        return tach_lib_mul;
+    }
+    if (!strcmp(str, "sub")) {
+        return tach_lib_sub;
+    }
+    if (!strcmp(str, "div")) {
+        return tach_lib_div;
+    }
+    if (!strcmp(str, "lt")) {
+        return tach_lib_lt;
+    }
+    if (!strcmp(str, "lte")) {
+        return tach_lib_lte;
+    }
+    if (!strcmp(str, "gt")) {
+        return tach_lib_gt;
+    }
+    if (!strcmp(str, "gte")) {
+        return tach_lib_gte;
+    }
+    if (!strcmp(str, "eq")) {
+        return tach_lib_eq;
+    }
+    if (!strcmp(str, "neq")) {
+        return tach_lib_neq;
+    }
+    if (!strcmp(str, "if")) {
+        return tach_lib_if;
+    }
+    if (!strcmp(str, "copy")) {
+        return tach_lib_copy;
+    }
+    if (!strcmp(str, "call")) {
+        return tach_lib_call;
+    }
+    if (!strcmp(str, "proc")) {
+        return tach_lib_proc;
+    }
+    if (!strcmp(str, "set")) {
+        return tach_lib_set;
+    }
+    if (!strcmp(str, "upset")) {
+        return tach_lib_upset;
+    }
+    if (!strcmp(str, "global")) {
+        return tach_lib_global;
+    }
+    if (!strcmp(str, "get")) {
+        return tach_lib_get;
+    }
+    if (!strcmp(str, "new_table")) {
+        return tach_lib_new_table;
+    }
+    if (!strcmp(str, "new_vector")) {
+        return tach_lib_new_vector;
+    }
+    return NULL;
+}
+
 tach_state *tach_create_state() {
     tach_state *ret = malloc(sizeof(tach_state));
     ret->depth = 1;
@@ -30,7 +189,6 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "upset", tach_object_make_func(tach_lib_upset));
     tach_create_state_regester(ret->locals[0], "global", tach_object_make_func(tach_lib_global));
     tach_create_state_regester(ret->locals[0], "get", tach_object_make_func(tach_lib_get));
-    tach_create_state_regester(ret->locals[0], "set", tach_object_make_func(tach_lib_set));
 
     tach_create_state_regester(ret->locals[0], "if", tach_object_make_func(tach_lib_if));
 

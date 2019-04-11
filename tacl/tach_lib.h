@@ -1,6 +1,8 @@
 #pragma once
 #include "tach.h"
 
+char *tach_func_to_name(tach_func);
+tach_func tach_name_to_func(char *);
 
 tach_object *tach_lib_print(tach_state *, uint32_t count, tach_object **args);
 tach_object *tach_lib_get(tach_state *, uint32_t count, tach_object **args);

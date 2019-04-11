@@ -72,6 +72,7 @@ tach_object *tach_state_get(tach_state *state, tach_object *obj) {
 }
 
 void tach_program_run(tach_state *state, tach_program *prog) {
+    tach_export_program_to_file(prog, fopen("out/out_prog.export.tach", "wb"));
     state->place = 0;
     while (state->place < prog->opcount) {
         tach_opcode op = prog->opcodes[state->place];

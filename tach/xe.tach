@@ -1,11 +1,6 @@
-export (out/out.export.tach) [
-    [new table]
-    0 zero
-    1 one
-    2 two
-    3 three
-    4 four
-]
+export (out/out.export.tach) {
+    print hello world
+}
 
-set got [import (out/out.export.tach)]
-print [got 1]
+set hello-world [import (out/out.export.tach)]
+hello-world

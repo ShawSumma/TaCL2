@@ -21,10 +21,14 @@ struct tach_point {
     tach_object **args;
 };
 
+struct tach_other_typeinfo {
+    char *name;
+    void (*deleter)(tach_other);
+};
+
 struct tach_other {
     void *value;
-    char *type;
-    void (*deleter)(tach_other);
+    tach_other_typeinfo *type;
 };
 
 struct tach_object {
