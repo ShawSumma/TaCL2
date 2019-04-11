@@ -239,10 +239,10 @@ tach_object *tach_lib_save_state(tach_state *state, uint32_t argc, tach_object *
     if (argc != 1) {
         fprintf(stderr, "save-state takes 1 arg\n");
     }
-    FILE *f = fopen(args[0]->value.string.str, "wb");
+    tach_file *f = tach_fopen(args[0]->value.string.str, "wb");
     tach_export_program_to_file(state->program, f);
     tach_export_state_to_file(state, f);
-    fclose(f);
+    tach_fclose(f);
     return tach_object_make_nil();
 }
 
@@ -250,10 +250,10 @@ tach_object *tach_lib_save_state_die(tach_state *state, uint32_t argc, tach_obje
     if (argc != 1) {
         fprintf(stderr, "save-state-die takes 1 arg\n");
     }
-    FILE *f = fopen(args[0]->value.string.str, "wb");
+    tach_file *f = tach_fopen(args[0]->value.string.str, "wb");
     tach_export_program_to_file(state->program, f);
     tach_export_state_to_file(state, f);
-    fclose(f);
+    tach_fclose(f);
     exit(0);
 }
 
@@ -261,10 +261,10 @@ tach_object *tach_lib_run_state(tach_state *state, uint32_t argc, tach_object **
     if (argc != 1) {
         fprintf(stderr, "run-state takes 1 arg\n");
     }
-    FILE *f = fopen(args[0]->value.string.str, "rb");
+    tach_file *f = tach_fopen(args[0]->value.string.str, "rb");
     tach_program *prog = tach_export_file_to_program(f);
     tach_state *new_state = tach_export_file_to_state(f);
-    fclose(f);
+    tach_fclose(f);
     new_state->place ++;
     tach_object *obj = tach_object_make_nil();
     tach_vector_push(new_state->stack, obj);
@@ -326,18 +326,18 @@ tach_object *tach_lib_len(tach_state *state, uint32_t argc, tach_object **args) 
 }
 
 tach_object *tach_lib_export(tach_state *state, uint32_t argc, tach_object **args) {
-    FILE *f = fopen(args[0]->value.string.str, "wb");
+    tach_file *f = tach_fopen(args[0]->value.string.str, "wb");
     for (uint32_t i = 1; i < argc; i++) {
         tach_export_object_to_file(args[i], f);
     }
-    fclose(f);
+    tach_fclose(f);
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_import(tach_state *state, uint32_t argc, tach_object **args) {
-    FILE *f = fopen(args[0]->value.string.str, "rb");
+    tach_file *f = tach_fopen(args[0]->value.string.str, "rb");
     tach_object *ret = tach_export_file_to_object(f);
-    fclose(f);
+    tach_fclose(f);
     return ret;
 }
 

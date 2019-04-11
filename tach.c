@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
         // tach_free_state(state);
     } 
     else {
-        FILE *f = fopen(argv[1], "r");
+        tach_file *f = tach_fopen(argv[1], "r");
         if (f != NULL) {
             tach_program *prog = tach_read(f);
             tach_state *state = tach_create_state();
@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
             fprintf(stderr, "no such file\n");
             exit(1);
         }
-        fclose(f);
+        tach_fclose(f);
     }
     
 }
