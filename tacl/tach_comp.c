@@ -7,15 +7,17 @@ tach_program *tach_read(tach_file *f) {
     return prog;
 }
 
-tach_program *tach_read_repl(tach_file *f) {
+tach_program *tach_read_repl(tach_file *f, tach_program *p) {
+    if (p == NULL) {
+        p = tach_comp_main_empty();
+    }
     tach_ast_proc *proc = tach_ast_read_proc(f, true);
-    tach_program *prog = tach_comp_main(proc);
+    tach_program *prog = tach_comp_main_more(proc, p);
     tach_ast_free_proc(proc);    
     return prog;
 }
 
-
-tach_program *tach_comp_main(tach_ast_proc *proc) {
+tach_program *tach_comp_main_empty() {
     tach_program *ret = malloc(sizeof(tach_program));
     ret->objcount = 0;
     ret->objalloc = 8;
@@ -23,6 +25,18 @@ tach_program *tach_comp_main(tach_ast_proc *proc) {
     ret->opcount = 0;
     ret->opalloc = 8;
     ret->opcodes = malloc(sizeof(tach_opcode) * ret->opalloc);
+    return ret;
+}
+
+tach_program *tach_comp_main(tach_ast_proc *proc) {
+    tach_program *ret = tach_comp_main_empty();
+    for (uint32_t i = 0; i < proc->count; i++) {
+        tach_comp_command(ret, proc->commands[i]);
+    }
+    return ret;
+}
+
+tach_program *tach_comp_main_more(tach_ast_proc *proc, tach_program *ret) {
     for (uint32_t i = 0; i < proc->count; i++) {
         tach_comp_command(ret, proc->commands[i]);
     }

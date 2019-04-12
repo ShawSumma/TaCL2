@@ -1,4 +1,4 @@
-if clang tach.c tacl/*.c lib/*.c vm/*.c object/*.c export/*.c files/*.c -std=c99 -lgmp -I./ -O3 -g -o tachvm 
+if clang tach.c tacl/*.c lib/*.c vm/*.c object/*.c export/*.c files/*.c -std=c99 -lgmp -I./ -O3 -o tachvm 
 then
-    valgrind --leak-check=full ./tachvm $1
+    ./tachvm $1
 fi

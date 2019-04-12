@@ -22,7 +22,7 @@ tach_ast_proc *tach_ast_read_proc(tach_file *f, bool one) {
             commands = realloc(commands, sizeof(tach_ast_command *) * alloc);
         }
         tach_ungetc(got, f);
-        tach_ungetc('\n', f);
+        // tach_ungetc('\n', f);
         commands[count] = tach_ast_read_command(f);
         count ++;
         if (one) break;
@@ -44,7 +44,10 @@ tach_ast_command *tach_ast_read_command(tach_file *f) {
     tach_ast_single **singles = malloc(sizeof(tach_ast_single *) * alloc);
 
     char orig = tach_getc(f);
-    char got = tach_getc(f);
+    char got = orig;
+    if (orig == '[') {
+        got = tach_getc(f);
+    }
     while (got != '}' && got != EOF) {
         if (count + 4 > alloc) {
             alloc *= 1.5;

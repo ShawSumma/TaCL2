@@ -3,10 +3,11 @@
 int main(int argc, char **argv) {
     if (argc < 2) {
         tach_state *state = tach_create_state();
-        tach_file *f = tach_cfopen("print hello world\n");
-        tach_program *prog = tach_read_repl(f);
-        tach_fclose(f);
-        tach_program_run(state, prog);
+        tach_program *prog = NULL;
+        while (true) {
+            prog = tach_read_repl(tach_pfopen(stdin), prog);
+            tach_program_run(state, prog);
+        }
         tach_free_program(prog);
         tach_free_state(state);
     } 
