@@ -1,0 +1,26 @@
+print
+get
+call
+proc
+set
+upset
+global
+if
+copy
+add
+mul
+div
+sub
+lt
+gt
+lte
+gte
+eq
+neq
+str
+len
+table new
+vector new
+save-state
+save-state-die
+run-state

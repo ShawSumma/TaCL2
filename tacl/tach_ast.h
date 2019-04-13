@@ -18,7 +18,6 @@ struct tach_ast_single {
     } value;
 };
 
-
 struct tach_ast_command {
     tach_ast_single **singles;
     uint32_t count;

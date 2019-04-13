@@ -21,8 +21,7 @@ tach_ast_proc *tach_ast_read_proc(tach_file *f, bool one) {
             alloc *= 1.5;
             commands = realloc(commands, sizeof(tach_ast_command *) * alloc);
         }
-        tach_ungetc(got, f);
-        
+        tach_ungetc(got, f); 
         commands[count] = tach_ast_read_command(f);
         count ++;
         if (one) break;

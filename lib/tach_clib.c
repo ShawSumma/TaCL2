@@ -45,9 +45,71 @@ char tach_clib_compare(tach_object *a, tach_object *b) {
             }
             return 0;
         }
-        default: {
+        case tach_object_point: {
+            if (a->value.point.point < b->value.point.point) {
+                return -1;
+            }
+            if (a->value.point.point > b->value.point.point) {
+                return 1;
+            }
             return 0;
         }
+        case tach_object_func: {
+            tach_string sa = tach_create_string(tach_func_to_name(a->value.func));
+            tach_string sb = tach_create_string(tach_func_to_name(a->value.func));
+            if (sa.count < sb.count) {
+                return -1;
+            }
+            if (sa.count > sb.count) {
+                return 1;
+            }
+            for (uint32_t i = 0; i < sa.count; i++) {
+                if (sa.str[i] < sb.str[i]) {
+                    free(sa.str);
+                    free(sb.str);
+                    return -1;
+                }
+                if (sa.str[i] > sb.str[i]) {
+                    free(sa.str);
+                    free(sb.str);
+                    return 1;
+                }
+            }
+            free(sa.str);
+            free(sb.str);
+            return 0;
+        }
+        case tach_object_vector: {
+            tach_vector *va = a->value.vector;
+            tach_vector *vb = b->value.vector;
+            if (va->count < vb->count) {
+                return -1;
+            }
+            if (va->count > vb->count) {
+                return 1;
+            }
+            for (uint32_t i = 0; i < va->count; i++) {
+                char got = tach_clib_compare(va->objects[i], vb->objects[i]);
+                if (got != 0) {
+                    return got;
+                }
+            }
+            return 0;
+        }
+        case tach_object_table: {
+            fprintf(stderr, "cannot compare tables\n");
+            exit(1);
+        }
+        case tach_object_nil: {
+            return 0;
+        }
+        case tach_object_other: {
+            fprintf(stderr, "cannot compare other values\n");
+            exit(1);
+        }
+        // default: {
+        //     return 0;
+        // }
     }
     return 0;
 }
@@ -60,10 +122,36 @@ tach_string tach_clib_tostring(tach_object *obj) {
             return tach_create_string("(nil)");
         case tach_object_point:
             return tach_create_string("(proc)");
-        case tach_object_vector:
-            return tach_create_string("(vector)");
+        case tach_object_vector: {
+            tach_vector *vec = obj->value.vector;
+            tach_string *strings = malloc(sizeof(tach_string) * vec->count);
+            uint32_t size = 3;
+            for (uint32_t i = 0; i < vec->count; i++) {
+                strings[i] = tach_clib_tostring(vec->objects[i]);
+                size += strings[i].count + 1;
+            }
+            char *str = malloc(sizeof(char) * size);
+            str[0] = '<';
+            uint32_t pl = 1;
+            for (uint32_t i = 0; i < vec->count; i++) {
+                if (i != 0) {
+                    str[pl] = ' ';
+                    pl ++;
+                }
+                for (uint32_t j = 0; j < strings[i].count; j++, pl++) {
+                    str[pl] = strings[i].str[j];
+                }
+                free(strings[i].str);
+            }
+            free(strings);
+            str[pl] = '>';
+            str[pl+1] = '\0';
+            tach_string ret = tach_create_string(str);
+            free(str);
+            return ret;
+        }
         case tach_object_other:
-            return tach_create_string("(object)");
+            return tach_create_string("(other object)");
         case tach_object_table:
             return tach_create_string("(table)");
         case tach_object_logic:
