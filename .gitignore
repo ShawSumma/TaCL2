@@ -4,5 +4,5 @@ tacl/tacl.so
 tachvm
 out/*
 out
+lib/tach_conv.h
 lib/tach_lib.h
-lib/tach_conv.c
