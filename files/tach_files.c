@@ -10,7 +10,7 @@ char tach_getc(tach_file *f) {
         }
         case tach_file_string: {
             if (f->file.str.place >= f->file.str.str.count) {
-                // exit(1);
+                
                 return EOF;
             }
             char got = f->file.str.str.str[f->file.str.place];

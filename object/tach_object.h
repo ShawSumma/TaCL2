@@ -33,7 +33,7 @@ struct tach_other {
 
 struct tach_object {
     union {
-        bool logical;
+        bool logic;
         tach_point point;
         tach_func func;
         tach_number *number;
@@ -45,7 +45,7 @@ struct tach_object {
     uint32_t refc;
     enum {
         tach_object_nil,
-        tach_object_logical,
+        tach_object_logic,
         tach_object_number,
         tach_object_point,
         tach_object_func,
@@ -74,7 +74,7 @@ tach_object *tach_vector_last(tach_vector *);
 
 tach_object *tach_object_alloc();
 tach_object *tach_object_make_nil();
-tach_object *tach_object_make_logical(bool);
+tach_object *tach_object_make_logic(bool);
 tach_object *tach_object_make_number(tach_number *);
 tach_object *tach_object_make_point(uint32_t);
 tach_object *tach_object_make_func(tach_func);

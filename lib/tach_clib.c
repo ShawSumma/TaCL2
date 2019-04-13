@@ -8,11 +8,11 @@ char tach_clib_compare(tach_object *a, tach_object *b) {
         return 0;
     }
     switch (a->type) {
-        case tach_object_logical: {
-            if (a->value.logical < b->value.logical) {
+        case tach_object_logic: {
+            if (a->value.logic < b->value.logic) {
                 return -1;
             }
-            if (a->value.logical > b->value.logical) {
+            if (a->value.logic > b->value.logic) {
                 return 1;
             }
             return 0;
@@ -66,8 +66,8 @@ tach_string tach_clib_tostring(tach_object *obj) {
             return tach_create_string("(object)");
         case tach_object_table:
             return tach_create_string("(table)");
-        case tach_object_logical:
-            return tach_create_string(obj->value.logical ? "true" : "false");
+        case tach_object_logic:
+            return tach_create_string(obj->value.logic ? "true" : "false");
         case tach_object_string:
             return tach_create_string(obj->value.string.str);
         case tach_object_number: {

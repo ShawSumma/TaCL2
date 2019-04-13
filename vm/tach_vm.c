@@ -14,10 +14,10 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
             tach_vector_push(state->stack, obj);
             tach_free_object(obj);
         }
-        // else {
-        //     fprintf(stderr, "null call error %s\n", tach_func_to_name(fn->value.func));
-        //     exit(1);
-        // }
+        
+        
+        
+        
     }
     else if(fn->type == tach_object_point) {
         if (state->depth + 4 > state->callalloc) {

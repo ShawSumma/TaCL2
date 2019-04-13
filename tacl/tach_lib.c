@@ -1,12 +1,8 @@
 #include "tach.h"
 
+
+
 char *tach_func_to_name(tach_func fn) {
-    if (fn == tach_lib_export) {
-        return "export";
-    }
-    if (fn == tach_lib_import) {
-        return "import";
-    }
     if (fn == tach_lib_len) {
         return "len";
     }
@@ -71,10 +67,10 @@ char *tach_func_to_name(tach_func fn) {
         return "get";
     }
     if (fn == tach_lib_new_table) {
-        return "new_table";
+        return "new table";
     }
     if (fn == tach_lib_new_vector) {
-        return "new_vector";
+        return "new vector";
     }
     if (fn == tach_lib_save_state) {
         return "save-state";
@@ -89,13 +85,9 @@ char *tach_func_to_name(tach_func fn) {
     return "";
 }
 
+
+
 tach_func tach_name_to_func(char *str) {
-    if (!strcmp(str, "export")) {
-        return tach_lib_export;
-    }
-    if (!strcmp(str, "import")) {
-        return tach_lib_import;
-    }
     if (!strcmp(str, "len")) {
         return tach_lib_len;
     }
@@ -159,10 +151,10 @@ tach_func tach_name_to_func(char *str) {
     if (!strcmp(str, "get")) {
         return tach_lib_get;
     }
-    if (!strcmp(str, "new_table")) {
+    if (!strcmp(str, "new table")) {
         return tach_lib_new_table;
     }
-    if (!strcmp(str, "new_vector")) {
+    if (!strcmp(str, "new vector")) {
         return tach_lib_new_vector;
     }
     if (!strcmp(str, "save-state")) {
@@ -177,6 +169,8 @@ tach_func tach_name_to_func(char *str) {
     exit(1);
 }
 
+
+
 tach_state *tach_create_state() {
     tach_state *ret = malloc(sizeof(tach_state));
     ret->depth = 1;
@@ -188,8 +182,6 @@ tach_state *tach_create_state() {
     ret->locals[0] = tach_create_table();
     ret->place = 0;
 
-    // tach_create_state_regester(ret->locals[0], "export", tach_object_make_func(tach_lib_export));
-    // tach_create_state_regester(ret->locals[0], "import", tach_object_make_func(tach_lib_import));
     tach_create_state_regester(ret->locals[0], "save-state", tach_object_make_func(tach_lib_save_state));
     tach_create_state_regester(ret->locals[0], "save-state-die", tach_object_make_func(tach_lib_save_state_die));
     tach_create_state_regester(ret->locals[0], "run-state", tach_object_make_func(tach_lib_run_state));
@@ -223,8 +215,8 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "eq", tach_object_make_func(tach_lib_eq));
     tach_create_state_regester(ret->locals[0], "neq", tach_object_make_func(tach_lib_neq));
 
-    tach_create_state_regester(ret->locals[0], "true", tach_object_make_logical(true));
-    tach_create_state_regester(ret->locals[0], "false", tach_object_make_logical(false));
+    tach_create_state_regester(ret->locals[0], "true", tach_object_make_logic(true));
+    tach_create_state_regester(ret->locals[0], "false", tach_object_make_logic(false));
 
     tach_table *newlocal = tach_create_table();
     tach_create_state_regester(newlocal, "table", tach_object_make_func(tach_lib_new_table));
@@ -234,6 +226,9 @@ tach_state *tach_create_state() {
 
     return ret;
 }
+
+
+
 
 tach_object *tach_lib_save_state(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 1) {
@@ -246,6 +241,8 @@ tach_object *tach_lib_save_state(tach_state *state, uint32_t argc, tach_object *
     return tach_object_make_nil();
 }
 
+
+
 tach_object *tach_lib_save_state_die(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 1) {
         fprintf(stderr, "save-state-die takes 1 arg\n");
@@ -256,6 +253,8 @@ tach_object *tach_lib_save_state_die(tach_state *state, uint32_t argc, tach_obje
     tach_fclose(f);
     exit(0);
 }
+
+
 
 tach_object *tach_lib_run_state(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 1) {
@@ -269,14 +268,16 @@ tach_object *tach_lib_run_state(tach_state *state, uint32_t argc, tach_object **
     tach_object *obj = tach_object_make_nil();
     tach_vector_push(new_state->stack, obj);
     tach_free_object(obj);
-    // tach_object *o = tach_object_make_nil();
-    // tach_vector_push(new_state->stack, o);
-    // tach_free_object(o);
+    
+    
+    
     tach_program_run(new_state, prog);
     tach_free_state(new_state);
     tach_free_program(prog);
     return tach_object_make_nil();
 }
+
+
 
 tach_object *tach_lib_new_vector(tach_state *state, uint32_t argc, tach_object **args) {
     tach_vector *vec = tach_create_vector();
@@ -286,6 +287,8 @@ tach_object *tach_lib_new_vector(tach_state *state, uint32_t argc, tach_object *
     return tach_object_make_vector(vec);
 }
 
+
+
 tach_object *tach_lib_new_table(tach_state *state, uint32_t argc, tach_object **args) {
     tach_table *vec = tach_create_table();
     for (uint32_t i = 0; i < argc; i+=2) {
@@ -293,6 +296,8 @@ tach_object *tach_lib_new_table(tach_state *state, uint32_t argc, tach_object **
     }
     return tach_object_make_table(vec);
 }
+
+
 
 tach_object *tach_lib_str(tach_state *state, uint32_t argc, tach_object **args) {
     tach_string *strs = malloc(sizeof(tach_string) * argc);
@@ -317,6 +322,8 @@ tach_object *tach_lib_str(tach_state *state, uint32_t argc, tach_object **args) 
     return tach_object_make_string(str);
 }
 
+
+
 tach_object *tach_lib_len(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 1) {
         fprintf(stderr, "len takes 1 arg\n");
@@ -325,21 +332,7 @@ tach_object *tach_lib_len(tach_state *state, uint32_t argc, tach_object **args) 
     return tach_object_make_number(tach_create_number(args[0]->value.string.count));
 }
 
-tach_object *tach_lib_export(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_file *f = tach_fopen(args[0]->value.string.str, "wb");
-    for (uint32_t i = 1; i < argc; i++) {
-        tach_export_object_to_file(args[i], f);
-    }
-    tach_fclose(f);
-    return tach_object_make_nil();
-}
 
-tach_object *tach_lib_import(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_file *f = tach_fopen(args[0]->value.string.str, "rb");
-    tach_object *ret = tach_export_file_to_object(f);
-    tach_fclose(f);
-    return ret;
-}
 
 tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args) {
     for (uint32_t i = 0; i < argc; i++) {
@@ -354,53 +347,69 @@ tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args
     return tach_object_make_nil();
 }
 
+
+
 tach_object *tach_lib_lt(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
         fprintf(stderr, "lt takes 2 args\n");
         exit(1);
     }
-    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) == -1);
+    return tach_object_make_logic(tach_clib_compare(args[0], args[1]) == -1);
 }
+
+
 
 tach_object *tach_lib_gt(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
         fprintf(stderr, "gt takes 2 args\n");
         exit(1);
     }
-    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) == 1);
+    return tach_object_make_logic(tach_clib_compare(args[0], args[1]) == 1);
 }
+
+
+
 
 tach_object *tach_lib_gte(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
         fprintf(stderr, "gte takes 2 args\n");
         exit(1);
     }
-    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) != -1);
+    return tach_object_make_logic(tach_clib_compare(args[0], args[1]) != -1);
 }
+
+
+
 
 tach_object *tach_lib_lte(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
         fprintf(stderr, "lte takes 2 args\n");
         exit(1);
     }
-    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) != 1);
+    return tach_object_make_logic(tach_clib_compare(args[0], args[1]) != 1);
 }
+
+
 
 tach_object *tach_lib_eq(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
         fprintf(stderr, "gq takes 2 args\n");
         exit(1);
     }
-    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) == 0);
+    return tach_object_make_logic(tach_clib_compare(args[0], args[1]) == 0);
 }
+
+
 
 tach_object *tach_lib_neq(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
         fprintf(stderr, "neq takes 2 args\n");
         exit(1);
     }
-    return tach_object_make_logical(tach_clib_compare(args[0], args[1]) != 0);
+    return tach_object_make_logic(tach_clib_compare(args[0], args[1]) != 0);
 }
+
+
 
 tach_object *tach_lib_add(tach_state *state, uint32_t argc, tach_object **args) {
     tach_number *ret = tach_create_number(0);
@@ -416,6 +425,8 @@ tach_object *tach_lib_add(tach_state *state, uint32_t argc, tach_object **args) 
     return tach_object_make_number(ret);
 }
 
+
+
 tach_object *tach_lib_mul(tach_state *state, uint32_t argc, tach_object **args) {
     tach_number *ret = tach_create_number(1);
     for (uint32_t i = 0; i < argc; i++) {
@@ -429,6 +440,8 @@ tach_object *tach_lib_mul(tach_state *state, uint32_t argc, tach_object **args) 
     }
     return tach_object_make_number(ret);
 }
+
+
 
 tach_object *tach_lib_sub(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc < 1) {
@@ -448,6 +461,8 @@ tach_object *tach_lib_sub(tach_state *state, uint32_t argc, tach_object **args) 
     return tach_object_make_number(ret);
 }
 
+
+
 tach_object *tach_lib_div(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc < 1) {
         fprintf(stderr, "div takes 1 or more args\n");
@@ -466,6 +481,8 @@ tach_object *tach_lib_div(tach_state *state, uint32_t argc, tach_object **args) 
     return tach_object_make_number(ret);
 }
 
+
+
 tach_object *tach_lib_get(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 1) {
         fprintf(stderr, "get takes 1 arg\n");
@@ -476,6 +493,8 @@ tach_object *tach_lib_get(tach_state *state, uint32_t argc, tach_object **args) 
     return obj;
 }
 
+
+
 tach_object *tach_lib_call(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 1) {
         fprintf(stderr, "call takes 1 arg\n");
@@ -484,6 +503,8 @@ tach_object *tach_lib_call(tach_state *state, uint32_t argc, tach_object **args)
     tach_call(state, args[0], 0, NULL);
     return NULL;
 }
+
+
 
 tach_object *tach_lib_proc(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc < 2) {
@@ -501,6 +522,8 @@ tach_object *tach_lib_proc(tach_state *state, uint32_t argc, tach_object **args)
     return tach_object_make_nil();
 }
 
+
+
 tach_object *tach_lib_set(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
         fprintf(stderr, "set takes 2 args\n");
@@ -509,6 +532,8 @@ tach_object *tach_lib_set(tach_state *state, uint32_t argc, tach_object **args) 
     tach_set_table(state->locals[state->depth-1], args[0], args[1]);
     return tach_object_make_nil();
 }
+
+
 
 tach_object *tach_lib_upset(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
@@ -519,6 +544,8 @@ tach_object *tach_lib_upset(tach_state *state, uint32_t argc, tach_object **args
     return tach_object_make_nil();
 }
 
+
+
 tach_object *tach_lib_global(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2) {
         fprintf(stderr, "global takes 2 args\n");
@@ -528,16 +555,15 @@ tach_object *tach_lib_global(tach_state *state, uint32_t argc, tach_object **arg
     return tach_object_make_nil();
 }
 
+
+
 tach_object *tach_lib_if(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc != 2 && argc != 3) {
         fprintf(stderr, "if takes 2 or 3 args\n");
         exit(1);
     }
     bool first = true;
-    if (args[0]->type == tach_object_number && args[0]->value.number == 0) {
-        first = false;
-    }
-    else if (args[0]->type == tach_object_logical && !args[0]->value.logical) {
+    if (args[0]->type == tach_object_logic && !args[0]->value.logic) {
         first = false;
     }
     else if (args[0]->type == tach_object_nil) {
@@ -561,6 +587,8 @@ tach_object *tach_lib_if(tach_state *state, uint32_t argc, tach_object **args) {
     }
     return NULL;
 }
+
+
 
 tach_object *tach_lib_copy(tach_state *state, uint32_t argc, tach_object **args) {
     if (argc == 0) {

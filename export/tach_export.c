@@ -1,5 +1,10 @@
 #include "tach.h"
 
+
+
+
+
+
 long tach_readnum(tach_file *f) {
     long n = 0;
     char got = tach_getc(f);
@@ -11,10 +16,12 @@ long tach_readnum(tach_file *f) {
     return n;
 }
 
+
+
 void tach_export_object_to_file(tach_object *obj, tach_file *f) {
     switch (obj->type) {
         case tach_object_other: {
-            fprintf(stderr, "cannot export a %s\n", obj->value.other.type->name);
+            fprintf(stderr, "cannot export an object of type %s\n", obj->value.other.type->name);
             exit(1);
             break;
         }
@@ -22,8 +29,8 @@ void tach_export_object_to_file(tach_object *obj, tach_file *f) {
             tach_fprintf(f, "#Z");
             break;
         }   
-        case tach_object_logical: {
-            tach_fprintf(f, obj->value.logical ? "#T" : "#F");
+        case tach_object_logic: {
+            tach_fprintf(f, obj->value.logic ? "#T" : "#F");
             break;
         }
         case tach_object_number: {
@@ -67,11 +74,11 @@ tach_object *tach_export_file_to_object(tach_file *f) {
                     break;
                 }
                 case 'T': {
-                    ret = tach_object_make_logical(true);
+                    ret = tach_object_make_logic(true);
                     break;
                 }
                 case 'F': {
-                    ret = tach_object_make_logical(false);
+                    ret = tach_object_make_logic(false);
                     break;
                 }
                 case 'N': {
@@ -155,6 +162,8 @@ tach_object *tach_export_file_to_object(tach_file *f) {
     return ret;
 }
 
+
+
 void tach_export_vector_to_file(tach_vector *v, tach_file *f) {
     tach_fprintf(f, "V%d:", v->count);
     for (uint32_t i = 0; i < v->count; i++) {
@@ -171,6 +180,8 @@ tach_vector *tach_export_file_to_vector(tach_file *f) {
     }
     return vec;
 }
+
+
 
 void tach_export_table_to_file(tach_table *t, tach_file *f) {
     tach_fprintf(f, "T");
@@ -208,6 +219,8 @@ tach_table *tach_export_file_to_table(tach_file *f) {
     return tab;
 }
 
+
+
 void tach_export_program_to_file(tach_program *prog, tach_file *f) {
     tach_fprintf(f, "%d:", prog->opcount);
     for (uint32_t i = 0; i < prog->opcount; i++) {
@@ -239,6 +252,10 @@ tach_program *tach_export_file_to_program(tach_file *f) {
     return ret;
 }
 
+
+
+
+
 void tach_export_func_to_file(tach_func func, tach_file *f) {
     char *name = tach_func_to_name(func);
     if (strlen(name) == 0) {
@@ -265,6 +282,8 @@ tach_func tach_export_file_to_func(tach_file *f) {
     return ret;
 }
 
+
+
 void tach_export_point_to_file(tach_point point, tach_file *f) {
     tach_fprintf(f, "P");
     tach_fprintf(f, "%d:", point.point);
@@ -284,6 +303,8 @@ tach_point tach_export_file_to_point(tach_file *f) {
     }
     return ret;
 }
+
+
 
 void tach_export_state_to_file(tach_state *prog, tach_file *f) {
     tach_fprintf(f, "%d:", prog->place);

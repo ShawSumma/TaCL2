@@ -12,10 +12,10 @@ tach_object *tach_object_make_nil() {
     return ret;
 }
 
-tach_object *tach_object_make_logical(bool b) {
+tach_object *tach_object_make_logic(bool b) {
     tach_object *ret = tach_object_alloc();
-    ret->type = tach_object_logical;
-    ret->value.logical = b;
+    ret->type = tach_object_logic;
+    ret->value.logic = b;
     return ret;
 }
 
