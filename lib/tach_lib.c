@@ -49,10 +49,14 @@ tach_state *tach_create_state() {
 
     tach_table *table = tach_create_table();
     tach_create_state_regester(table, "new", tach_object_make_func(tach_lib_table_new));
+    tach_create_state_regester(table, "set", tach_object_make_func(tach_lib_table_set));
+    tach_create_state_regester(table, "has", tach_object_make_func(tach_lib_table_has));
     tach_create_state_regester(ret->locals[0], "table", tach_object_make_table(table));
 
     tach_table *vector = tach_create_table();
     tach_create_state_regester(vector, "new", tach_object_make_func(tach_lib_vector_new));
+    tach_create_state_regester(vector, "set", tach_object_make_func(tach_lib_vector_set));
+    tach_create_state_regester(vector, "push", tach_object_make_func(tach_lib_vector_push));
     tach_create_state_regester(ret->locals[0], "vector", tach_object_make_table(vector));
 
     return ret;
@@ -107,6 +111,59 @@ tach_object *tach_lib_vector_new(tach_state *state, uint32_t argc, tach_object *
         tach_vector_push(vec, args[i]);
     }
     return tach_object_make_vector(vec);
+}
+
+tach_object *tach_lib_vector_set(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 3) {
+        fprintf(stderr, "vector set takes 3 args\n");
+        exit(1);
+    }
+    printf("%s\n", tach_clib_tostring(args[0]).str);
+    if (args[0]->type != tach_object_vector && args[1]->type != tach_object_number) {
+        fprintf(stderr, "vector set takes vector number any\n");
+        exit(1);
+    }
+    tach_set_vector(args[0]->value.vector, tach_number_double(args[1]->value.number), args[2]);
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_table_set(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 3) {
+        fprintf(stderr, "table set takes 3 args\n");
+        exit(1);
+    }
+    if (args[0]->type != tach_object_table) {
+        fprintf(stderr, "table set takes table any any\n");
+        exit(1);
+    }
+    tach_set_table(args[0]->value.table, args[1], args[2]);
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_table_has(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr, "table has takes 2 args\n");
+        exit(1);
+    }
+    if (args[0]->type != tach_object_table) {
+        fprintf(stderr, "table has takes table any\n");
+    }
+    return tach_object_make_logic(tach_get_table(args[0]->value.table, args[1])  != NULL);
+}
+
+tach_object *tach_lib_vector_push(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc < 1) {
+        fprintf(stderr, "vector push takes 1 or more args\n");
+        exit(1);
+    }
+    if (args[0]->type != tach_object_vector) {
+        fprintf(stderr, "vector push needs a vector as the first argument\n");
+        exit(1);
+    }
+    for (uint32_t i = 1; i < argc; i++) {
+        tach_vector_push(args[0]->value.vector, args[i]);
+    }
+    return tach_object_make_nil();
 }
 
 tach_object *tach_lib_table_new(tach_state *state, uint32_t argc, tach_object **args) {

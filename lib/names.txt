@@ -19,8 +19,12 @@ eq
 neq
 str
 len
-table new
-vector new
 save-state
 save-state-die
 run-state
+table new
+table set
+table has
+vector new
+vector set
+vector push

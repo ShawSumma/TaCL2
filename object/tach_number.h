@@ -1,9 +1,15 @@
 #pragma once
 #include "tach.h"
 
+#ifdef tach_use_big_rational
 struct tach_number {
     mpq_t number;
 };
+#else
+struct tach_number {
+    double number;
+};
+#endif
 
 tach_number *tach_create_number(double);
 tach_number *tach_create_number_string(char *);

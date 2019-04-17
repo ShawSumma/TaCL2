@@ -1,5 +1,7 @@
 #pragma once
 
+#define tach_use_big_rational
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "stdint.h"
@@ -9,13 +11,11 @@
 
 #include <gmp.h>
 
-#include <dlfcn.h>
-
 #include "object/tach_types.h"
 #include "vm/tach_types.h"
 #include "tacl/tach_types.h"
 #include "files/tach_types.h"
-
+#include "lib/tach_types.h"
 
 #include "object/tach_all.h"
 #include "vm/tach_all.h"

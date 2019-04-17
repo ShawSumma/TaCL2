@@ -2,6 +2,7 @@
 
 tach_program *tach_read(tach_file *f) {
     tach_ast_proc *proc = tach_ast_read_proc(f, false);
+    tach_ast_print_program(tach_pfopen(stdout), proc);
     tach_program *prog = tach_comp_main(proc);
     tach_ast_free_proc(proc);    
     return prog;

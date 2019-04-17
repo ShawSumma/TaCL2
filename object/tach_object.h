@@ -71,6 +71,7 @@ tach_vector *tach_create_vector();
 void tach_vector_push(tach_vector *, tach_object *);
 tach_object *tach_vector_pop(tach_vector *);
 tach_object *tach_vector_last(tach_vector *);
+void tach_set_vector(tach_vector *, uint32_t, tach_object *);
 
 tach_object *tach_object_alloc();
 tach_object *tach_object_make_nil();

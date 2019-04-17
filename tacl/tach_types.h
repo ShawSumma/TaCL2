@@ -1,8 +1,6 @@
 #pragma once
 #include "tach.h"
 
-#include <libtcc.h>
-
 struct tach_ast_proc;
 typedef struct tach_ast_proc tach_ast_proc;
 struct tach_ast_command;

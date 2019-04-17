@@ -29,8 +29,8 @@ struct tach_ast_proc {
 };
 
 tach_ast_proc *tach_ast_read_proc(tach_file *, bool);
-tach_ast_command *tach_ast_read_command(tach_file *f);
-tach_ast_single *tach_ast_read_single(tach_file *f);
-char *tach_ast_read_name(tach_file *f);
-char *tach_ast_read_number(tach_file *f);
+tach_ast_command *tach_ast_read_command(tach_file *, bool);
+tach_ast_single *tach_ast_read_single(tach_file *);
+char *tach_ast_read_name(tach_file *);
+char *tach_ast_read_number(tach_file *);
 

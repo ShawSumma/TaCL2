@@ -14,10 +14,6 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
             tach_vector_push(state->stack, obj);
             tach_free_object(obj);
         }
-        
-        
-        
-        
     }
     else if(fn->type == tach_object_point) {
         if (state->depth + 4 > state->callalloc) {
@@ -37,6 +33,10 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
         while (fn->type == tach_object_table || fn->type == tach_object_vector) {
             if (fn->type == tach_object_table) {
                 fn = tach_get_table(fn->value.table, args[0]);
+                if (fn == NULL) {
+                    fprintf(stderr, "table index not known\n");
+                    exit(1);
+                }
             }
             else {
                 if (args[0]->type != tach_object_number) {
@@ -46,6 +46,7 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
                 uint32_t pl = tach_number_double(args[0]->value.number);
                 if (pl >= fn->value.vector->count) {
                     fprintf(stderr, "vector index out of range\n");
+                    exit(1);
                 }
                 fn = fn->value.vector->objects[pl];
             }

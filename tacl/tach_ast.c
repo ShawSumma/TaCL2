@@ -12,20 +12,21 @@ tach_ast_proc *tach_ast_read_proc(tach_file *f, bool one) {
     if (got == '{') {
         got = tach_getc(f);
     }
+    tach_ungetc(got, f);
     while (true) {
-        while (got == '\r' || got == '\n' || got == ';' || got == '\t' || got == ' ') {
+        got = tach_getc(f);
+        while (got == '\r' || got == '\n' || got == ';' || got == '\t' || got == ' ' || got == ']') {
             got = tach_getc(f);
         }
         if (got == '}' || got == EOF) break;
+        tach_ungetc(got, f);
         if (count + 4 >= alloc) {
             alloc *= 1.5;
             commands = realloc(commands, sizeof(tach_ast_command *) * alloc);
         }
-        tach_ungetc(got, f); 
-        commands[count] = tach_ast_read_command(f);
+        commands[count] = tach_ast_read_command(f, false);
         count ++;
         if (one) break;
-        got = tach_getc(f);
     }
 
     ret->commands = commands;
@@ -34,25 +35,24 @@ tach_ast_proc *tach_ast_read_proc(tach_file *f, bool one) {
     return ret;
 }
 
-tach_ast_command *tach_ast_read_command(tach_file *f) {
+tach_ast_command *tach_ast_read_command(tach_file *f, bool issub) {
     tach_ast_command *ret = malloc(sizeof(tach_ast_command));
 
     uint32_t alloc = 4;
     uint32_t count = 0;
 
     tach_ast_single **singles = malloc(sizeof(tach_ast_single *) * alloc);
-
-    char orig = tach_getc(f);
-    char got = orig;
-    if (orig == '[') {
+    char got;
+    while (true) {
         got = tach_getc(f);
-    }
-    while (got != '}' && got != EOF) {
         if (count + 4 > alloc) {
             alloc *= 1.5;
             singles = realloc(singles, sizeof(tach_ast_single *) * alloc);
         }
-        if (orig == '[') {
+        if (got == '}' || got == EOF) {
+            break;
+        }
+        if (issub) {
             while (got == '\t' || got == ' ' || got == '\n' || got == '\r') {
                 got = tach_getc(f);
             }
@@ -71,7 +71,6 @@ tach_ast_command *tach_ast_read_command(tach_file *f) {
         tach_ungetc(got, f);
         singles[count] = tach_ast_read_single(f);
         count ++;
-        got = tach_getc(f);
     }
 
     ret->singles = singles;
@@ -112,11 +111,10 @@ tach_ast_single *tach_ast_read_single(tach_file *f) {
     if (got == '[') {
         tach_ast_single *ret = malloc(sizeof(tach_ast_single));
         ret->type = tach_ast_single_command;
-        tach_ungetc('[', f);
-        ret->value.command = tach_ast_read_command(f);
+        ret->value.command = tach_ast_read_command(f, true);
         return ret;
     }
-    printf("error reading file\n");
+    printf("error reading file %d %c\n", got, got);
     exit(1);
 }
 

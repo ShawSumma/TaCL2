@@ -6,3 +6,4 @@
 #include "tach_ast.h"
 #include "tach_comp.h"
 #include "tach_memory.h"
+#include "tach_ast_print.h"

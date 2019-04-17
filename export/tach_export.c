@@ -1,10 +1,5 @@
 #include "tach.h"
 
-
-
-
-
-
 long tach_readnum(tach_file *f) {
     long n = 0;
     char got = tach_getc(f);
@@ -15,8 +10,6 @@ long tach_readnum(tach_file *f) {
     }
     return n;
 }
-
-
 
 void tach_export_object_to_file(tach_object *obj, tach_file *f) {
     switch (obj->type) {
@@ -162,8 +155,6 @@ tach_object *tach_export_file_to_object(tach_file *f) {
     return ret;
 }
 
-
-
 void tach_export_vector_to_file(tach_vector *v, tach_file *f) {
     tach_fprintf(f, "V%d:", v->count);
     for (uint32_t i = 0; i < v->count; i++) {
@@ -219,8 +210,6 @@ tach_table *tach_export_file_to_table(tach_file *f) {
     return tab;
 }
 
-
-
 void tach_export_program_to_file(tach_program *prog, tach_file *f) {
     tach_fprintf(f, "%d:", prog->opcount);
     for (uint32_t i = 0; i < prog->opcount; i++) {
@@ -251,10 +240,6 @@ tach_program *tach_export_file_to_program(tach_file *f) {
     }
     return ret;
 }
-
-
-
-
 
 void tach_export_func_to_file(tach_func func, tach_file *f) {
     char *name = tach_func_to_name(func);
@@ -303,8 +288,6 @@ tach_point tach_export_file_to_point(tach_file *f) {
     }
     return ret;
 }
-
-
 
 void tach_export_state_to_file(tach_state *prog, tach_file *f) {
     tach_fprintf(f, "%d:", prog->place);
