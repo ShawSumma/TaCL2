@@ -16,9 +16,6 @@ int main(int argc, char **argv) {
         if (f != NULL) {
             tach_program *prog = tach_read(f);
             tach_state *state = tach_create_state();
-            // for (uint32_t i = 0; i < prog->opcount; i++) {
-            //     printf("%d\t:%d\t%d\n", i, prog->opcodes[i].type, prog->opcodes[i].value);
-            // }
             tach_program_run(state, prog);
             tach_free_program(prog);
             tach_free_state(state);
@@ -29,5 +26,4 @@ int main(int argc, char **argv) {
         }
         tach_fclose(f);
     }
-    
 }
