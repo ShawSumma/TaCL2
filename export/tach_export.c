@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 long tach_readnum(tach_file *f) {
     long n = 0;
@@ -13,11 +13,6 @@ long tach_readnum(tach_file *f) {
 
 void tach_export_object_to_file(tach_object *obj, tach_file *f) {
     switch (obj->type) {
-        case tach_object_other: {
-            fprintf(stderr, "cannot export an object of type %s\n", obj->value.other.type->name);
-            exit(1);
-            break;
-        }
         case tach_object_nil: {
             tach_fprintf(f, "#Z");
             break;
@@ -151,7 +146,7 @@ tach_object *tach_export_file_to_object(tach_file *f) {
             exit(1);
         }
     }
-    ret->refc = tach_readnum(f) + 1000;
+    ret->refc = tach_readnum(f);
     return ret;
 }
 

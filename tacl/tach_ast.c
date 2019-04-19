@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 tach_ast_proc *tach_ast_read_proc(tach_file *f, bool one) {
     tach_ast_proc *ret = malloc(sizeof(tach_ast_proc));
@@ -87,7 +87,7 @@ tach_ast_single *tach_ast_read_single(tach_file *f) {
         ret->value.name = tach_ast_read_name(f);
         return ret;
     }
-    if ((got >= 'a' && got <= 'z') || got == '_' || got == '(') {
+    if ((got >= 'A' && got <= 'Z') || (got >= 'a' && got <= 'z') || got == '_' || got == '(') {
         tach_ungetc(got, f);
         tach_ast_single *ret = malloc(sizeof(tach_ast_single));
         ret->type = tach_ast_single_string;
@@ -114,7 +114,7 @@ tach_ast_single *tach_ast_read_single(tach_file *f) {
         ret->value.command = tach_ast_read_command(f, true);
         return ret;
     }
-    printf("error reading file %d %c\n", got, got);
+    fprintf(stderr, "error reading file\n");
     exit(1);
 }
 
@@ -150,7 +150,7 @@ char *tach_ast_read_name(tach_file *f) {
         uint32_t alloc = 16;
         char *name = malloc(sizeof(char) * alloc);
         uint32_t place = 0;
-        while ((got >= 'a' && got <= 'z') || got == '_' || got == '-') {
+        while ((got >= 'A' && got <= 'Z') || (got >= 'a' && got <= 'z') || got == '_' || got == '-') {
             if (place + 4 > alloc) {
                 alloc *= 1.5;
                 name = realloc(name, sizeof(char) * alloc);

@@ -25,6 +25,14 @@ run-state
 table new
 table set
 table has
+table concat
+table unpack
 vector new
 vector set
 vector push
+vector pop
+vector concat
+vector last
+vars global
+vars local
+vars at

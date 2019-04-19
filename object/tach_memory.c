@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 void tach_free_object(tach_object *obj) {
     obj->refc --;
@@ -25,10 +25,6 @@ void tach_free_object(tach_object *obj) {
         }
         case tach_object_number: {
             tach_free_number(obj->value.number);
-            break;
-        }
-        case tach_object_other: {
-            obj->value.other.type->deleter(obj->value.other);
             break;
         }
         case tach_object_table: {

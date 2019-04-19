@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 char tach_clib_compare(tach_object *a, tach_object *b) {
     if (a->type < b->type) {
@@ -103,13 +103,6 @@ char tach_clib_compare(tach_object *a, tach_object *b) {
         case tach_object_nil: {
             return 0;
         }
-        case tach_object_other: {
-            fprintf(stderr, "cannot compare other values\n");
-            exit(1);
-        }
-        // default: {
-        //     return 0;
-        // }
     }
     return 0;
 }
@@ -150,8 +143,6 @@ tach_string tach_clib_tostring(tach_object *obj) {
             free(str);
             return ret;
         }
-        case tach_object_other:
-            return tach_create_string("(other object)");
         case tach_object_table:
             return tach_create_string("(table)");
         case tach_object_logic:

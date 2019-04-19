@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 void tach_ast_free_proc(tach_ast_proc *p) {
     for (uint32_t i = 0; i < p->count; i++) {

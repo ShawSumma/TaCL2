@@ -1,3 +1,2 @@
-set x [[vector new] 0 1 2 3 4]
-[vector push] $x 5
-print $x
+set x [[vector new] 1 2 3]
+print [[vector last] $x]

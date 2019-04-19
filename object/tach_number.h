@@ -1,5 +1,5 @@
 #pragma once
-#include "tach.h"
+#include <tach.h>
 
 #ifdef tach_use_big_rational
 struct tach_number {

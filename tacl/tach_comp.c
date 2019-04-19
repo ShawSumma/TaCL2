@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 tach_program *tach_read(tach_file *f) {
     tach_ast_proc *proc = tach_ast_read_proc(f, false);
@@ -31,6 +31,12 @@ tach_program *tach_comp_main_empty() {
 tach_program *tach_comp_main(tach_ast_proc *proc) {
     tach_program *ret = tach_comp_main_empty();
     for (uint32_t i = 0; i < proc->count; i++) {
+        if (i != 0) {
+            tach_program_realloc(ret);
+            ret->opcodes[ret->opcount].type = tach_opcode_pop;
+            ret->opcodes[ret->opcount].value = 0;
+            ret->opcount ++;
+        }
         tach_comp_command(ret, proc->commands[i]);
     }
     return ret;
@@ -130,7 +136,7 @@ void tach_comp_single(tach_program *prog, tach_ast_single *single) {
 void tach_program_realloc(tach_program *prog) {
     if (prog->opcount + 4 > prog->opalloc) {
         prog->opalloc *= 1.5;
-        prog->opcodes = realloc(prog->opcodes, sizeof(tach_opcode *) * prog->opalloc);
+        prog->opcodes = realloc(prog->opcodes, sizeof(tach_opcode) * prog->opalloc);
     }
     if (prog->objcount + 4 > prog->objalloc) {
         prog->objalloc *= 1.5;

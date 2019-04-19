@@ -1,5 +1,5 @@
 #pragma once
-#include "tach.h"
+#include <tach.h>
 
 struct tach_state {
     tach_program *program;

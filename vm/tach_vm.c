@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 void tach_create_state_regester(tach_table *table, char *str, tach_object *obj) {
     tach_object *key = tach_object_make_string(tach_create_string(str));
@@ -95,7 +95,7 @@ void tach_program_run(tach_state *state, tach_program *prog) {
                 break;
             }
             case tach_opcode_load: {
-                tach_vector_push(state->stack, tach_state_get(state, prog->objs[op.value]));                
+                tach_vector_push(state->stack, tach_state_get(state, prog->objs[op.value]));
                 break;
             }
             case tach_opcode_call: {
@@ -107,7 +107,6 @@ void tach_program_run(tach_state *state, tach_program *prog) {
                     args[argc-i-1] = arg;
                     tach_vector_pop(state->stack);
                 }
-                
                 tach_object *fn = tach_vector_last(state->stack);
                 fn->refc ++;
                 tach_vector_pop(state->stack);
@@ -134,5 +133,6 @@ void tach_program_run(tach_state *state, tach_program *prog) {
             }
         }
         state->place ++;
+        // printf("%d\n", state->stack->count);
     }
 }

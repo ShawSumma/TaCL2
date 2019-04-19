@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 char tach_getc(tach_file *f) {
     switch (f->type) {

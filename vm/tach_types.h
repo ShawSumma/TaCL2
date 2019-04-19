@@ -1,5 +1,5 @@
 #pragma once
-#include "tach.h"
+#include <tach.h>
 
 struct tach_opcode;
 typedef struct tach_opcode tach_opcode;

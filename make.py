@@ -25,7 +25,7 @@ files = [
 libnames.main()
 
 for i in files:
-    cmd = [cc, '-c', '-I./', '-o', 'out/' + '_'.join(i.split('/')) + '.o', i + '.c', '-O3']
+    cmd = [cc, '-c', '-I./', '-O3', '-g', '-std=c99', '-o', 'out/' + '_'.join(i.split('/')) + '.o', i + '.c']
     subprocess.run(cmd, check=True)
     print(' '.join(cmd))
 lis = [cc, '-o', './tachvm', '-lgmp', '-O3']

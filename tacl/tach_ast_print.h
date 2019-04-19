@@ -1,5 +1,5 @@
 #pragma once
-#include "tach.h"
+#include <tach.h>
 
 void tach_ast_print_program(tach_file *, tach_ast_proc *);
 void tach_ast_print_nspaces(tach_file *, uint32_t);

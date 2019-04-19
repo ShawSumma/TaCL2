@@ -6,7 +6,7 @@ def main():
     convc = open('lib/tach_conv.c', 'w')
 
     convh.write('#pragma once\n')
-    convh.write('#include "tach.h"\n\n')
+    convh.write('#include <tach.h>\n\n')
     convh.write('char *tach_func_to_name(tach_func);\n')
     convh.write('tach_func tach_name_to_func(char *);\n')
 
@@ -14,7 +14,7 @@ def main():
         convd = i.replace(' ', '_').replace('-', '_')
         convh.write(f'tach_object *tach_lib_{convd}(tach_state *, uint32_t count, tach_object **args);\n')
 
-    convc.write('#include "tach.h"\n\n')
+    convc.write('#include <tach.h>\n\n')
     convc.write('char *tach_func_to_name(tach_func fn) {\n')
     for i in names:
         convd = i.replace(' ', '_').replace('-', '_')
@@ -27,7 +27,7 @@ def main():
     convc.write('\n')
 
     nameh.write('#pragma once\n')
-    nameh.write('#include "tach.h"\n\n')
+    nameh.write('#include <tach.h>\n\n')
     nameh.write('enum tach_libname {\n')
     convc.write('tach_libname tach_func_to_libname(tach_func fn) {\n')
     for pl, i in enumerate(names):

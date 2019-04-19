@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 void tach_ast_print_program(tach_file *of, tach_ast_proc *proc) {
     tach_ast_print_proc(of, proc, 0);

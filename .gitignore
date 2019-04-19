@@ -8,3 +8,4 @@ lib/tach_conv.c
 lib/tach_libname.h
 lib/tach_lib.h
 */*.o
+__pycache__

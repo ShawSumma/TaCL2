@@ -1,5 +1,5 @@
 #pragma once
-#include "tach.h"
+#include <tach.h>
 
 typedef tach_object *(*tach_func)(tach_state *, uint32_t, tach_object **);
 
@@ -21,16 +21,6 @@ struct tach_point {
     tach_object **args;
 };
 
-struct tach_other_typeinfo {
-    char *name;
-    void (*deleter)(tach_other);
-};
-
-struct tach_other {
-    void *value;
-    tach_other_typeinfo *type;
-};
-
 struct tach_object {
     union {
         bool logic;
@@ -40,9 +30,7 @@ struct tach_object {
         tach_vector *vector;
         tach_table *table;
         tach_string string;
-        tach_other other;
     } value;
-    uint32_t refc;
     enum {
         tach_object_nil,
         tach_object_logic,
@@ -52,8 +40,8 @@ struct tach_object {
         tach_object_string,
         tach_object_vector,
         tach_object_table,
-        tach_object_other,
     } type;
+    uint32_t refc;
 };
 
 struct tach_table {
@@ -82,5 +70,8 @@ tach_object *tach_object_make_func(tach_func);
 tach_object *tach_object_make_string(tach_string);
 tach_object *tach_object_make_vector(tach_vector *);
 tach_object *tach_object_make_table(tach_table *);
-tach_object *tach_object_make_other(tach_other);
 
+tach_object *tach_object_copy(tach_object *);
+tach_vector *tach_vector_copy(tach_vector *);
+tach_table *tach_table_copy(tach_table *);
+tach_string tach_string_copy(tach_string);

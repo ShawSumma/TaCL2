@@ -1,4 +1,5 @@
 #pragma once
+#include <tach.h>
 
 struct tach_file {
     union {

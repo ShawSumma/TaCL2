@@ -1,4 +1,4 @@
-#include "tach.h"
+#include <tach.h>
 
 tach_state *tach_create_state() {
     tach_state *ret = malloc(sizeof(tach_state));
@@ -51,13 +51,25 @@ tach_state *tach_create_state() {
     tach_create_state_regester(table, "new", tach_object_make_func(tach_lib_table_new));
     tach_create_state_regester(table, "set", tach_object_make_func(tach_lib_table_set));
     tach_create_state_regester(table, "has", tach_object_make_func(tach_lib_table_has));
+    tach_create_state_regester(table, "concat", tach_object_make_func(tach_lib_table_concat));
+    tach_create_state_regester(table, "unpack", tach_object_make_func(tach_lib_table_unpack));
     tach_create_state_regester(ret->locals[0], "table", tach_object_make_table(table));
 
     tach_table *vector = tach_create_table();
     tach_create_state_regester(vector, "new", tach_object_make_func(tach_lib_vector_new));
     tach_create_state_regester(vector, "set", tach_object_make_func(tach_lib_vector_set));
     tach_create_state_regester(vector, "push", tach_object_make_func(tach_lib_vector_push));
+    tach_create_state_regester(vector, "concat", tach_object_make_func(tach_lib_vector_concat));
+    tach_create_state_regester(vector, "pop", tach_object_make_func(tach_lib_vector_pop));
+    tach_create_state_regester(vector, "last", tach_object_make_func(tach_lib_vector_last));
     tach_create_state_regester(ret->locals[0], "vector", tach_object_make_table(vector));
+
+    tach_table *vars = tach_create_table();
+    tach_create_state_regester(vars, "global", tach_object_make_func(tach_lib_vars_global));
+    tach_create_state_regester(vars, "local", tach_object_make_func(tach_lib_vars_local));
+    tach_create_state_regester(vars, "at", tach_object_make_func(tach_lib_vars_at));
+    tach_create_state_regester(ret->locals[0], "vars", tach_object_make_table(vars));
+
 
     return ret;
 }
@@ -96,9 +108,6 @@ tach_object *tach_lib_run_state(tach_state *state, uint32_t argc, tach_object **
     tach_object *obj = tach_object_make_nil();
     tach_vector_push(new_state->stack, obj);
     tach_free_object(obj);
-    
-    
-    
     tach_program_run(new_state, prog);
     tach_free_state(new_state);
     tach_free_program(prog);
@@ -430,4 +439,74 @@ tach_object *tach_lib_copy(tach_state *state, uint32_t argc, tach_object **args)
     }
     args[argc-1]->refc ++;
     return args[argc-1];
+}
+
+tach_object *tach_lib_table_concat(tach_state *state, uint32_t argc, tach_object **args) {
+    fprintf(stderr, "not impl yet [table concat]\n");
+    exit(1);
+}
+
+tach_object *tach_lib_table_unpack(tach_state *state, uint32_t argc, tach_object **args) {
+    fprintf(stderr, "not impl yet [table unpack]\n");
+    exit(1);
+}
+
+tach_object *tach_lib_vector_pop(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 1) {
+        fprintf(stderr,"vector pop takes 1 arg\n");
+        exit(1);
+    }
+    if (args[0]->type != tach_object_vector) {
+        fprintf(stderr, "vector pop takes a vetor\n");
+        exit(1);
+    }
+    tach_vector_pop(args[0]->value.vector);
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_vector_concat(tach_state *state, uint32_t argc, tach_object **args) {
+    if (argc != 2) {
+        fprintf(stderr,"vector concat takes 2 args\n");
+        exit(1);
+    }
+    if (args[0]->type != tach_object_vector || args[1]->type != tach_object_vector) {
+        fprintf(stderr, "vector concat takes vetor vector\n");
+        exit(1);
+    }
+    tach_vector *vec1 = args[0]->value.vector;
+    tach_vector *vec2 = args[1]->value.vector;
+    uint32_t count = vec2->count;
+    for (uint32_t i = 0; i < count; i++) {
+        tach_vector_push(vec1, vec2->objects[i]);
+    }    
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_vector_last(tach_state *state, uint32_t argc, tach_object **args) {
+        if (argc != 1) {
+        fprintf(stderr,"vector last takes 1 arg\n");
+        exit(1);
+    }
+    if (args[0]->type != tach_object_vector) {
+        fprintf(stderr, "vector last takes a vetor\n");
+        exit(1);
+    }
+    tach_object *ret = tach_vector_last(args[0]->value.vector);
+    ret->refc ++;
+    return ret;
+}
+
+tach_object *tach_lib_vars_at(tach_state *state, uint32_t argc, tach_object **args) {
+    fprintf(stderr, "not impl yet [vars at]\n");
+    exit(1);
+}
+
+tach_object *tach_lib_vars_global(tach_state *state, uint32_t argc, tach_object **args) {
+    fprintf(stderr, "not impl yet [vars global]\n");
+    exit(1);
+}
+
+tach_object *tach_lib_vars_local(tach_state *state, uint32_t argc, tach_object **args) {
+    fprintf(stderr, "not impl yet [vars local]\n");
+    exit(1);
 }
