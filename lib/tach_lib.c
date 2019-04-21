@@ -132,52 +132,29 @@ tach_object *tach_lib_vector_new(tach_state *state, uint32_t argc, tach_object *
 }
 
 tach_object *tach_lib_vector_set(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 3) {
-        fprintf(stderr, "vector set takes 3 args\n");
-        exit(1);
-    }
-    printf("%s\n", tach_clib_tostring(args[0]).str);
-    if (args[0]->type != tach_object_vector && args[1]->type != tach_object_number) {
-        fprintf(stderr, "vector set takes vector number any\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "vector set", argc, 3, 3);
+    tach_errors_type_typecheck(state, "vector set", 0, args[0], tach_object_vector);
+    tach_errors_type_typecheck(state, "vector set", 1, args[1], tach_object_number);
     tach_set_vector(args[0]->value.vector, tach_number_double(args[1]->value.number), args[2]);
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_table_set(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 3) {
-        fprintf(stderr, "table set takes 3 args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_table) {
-        fprintf(stderr, "table set takes table any any\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "table set", argc, 3, 3);
+    tach_errors_type_typecheck(state, "table set", 0, args[0], tach_object_table);
     tach_set_table(args[0]->value.table, args[1], args[2]);
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_table_has(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "table has takes 2 args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_table) {
-        fprintf(stderr, "table has takes table any\n");
-    }
+    tach_errors_type_argc(state, "table has", argc, 2, 2);
+    tach_errors_type_typecheck(state, "table has", 0, args[0], tach_object_table);
     return tach_object_make_logic(tach_get_table(args[0]->value.table, args[1])  != NULL);
 }
 
 tach_object *tach_lib_vector_push(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc < 1) {
-        fprintf(stderr, "vector push takes 1 or more args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_vector) {
-        fprintf(stderr, "vector push needs a vector as the first argument\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "vector push", argc, 1, 256);
+    tach_errors_type_typecheck(state, "vector set", 0, args[0], tach_object_vector);
     for (uint32_t i = 1; i < argc; i++) {
         tach_vector_push(args[0]->value.vector, args[i]);
     }
@@ -229,63 +206,40 @@ tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args
 }
 
 tach_object *tach_lib_lt(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "lt takes 2 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "lt", argc, 2, 2);
     return tach_object_make_logic(tach_clib_compare(args[0], args[1]) == -1);
 }
 
 tach_object *tach_lib_gt(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "gt takes 2 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "gt", argc, 2, 2);
     return tach_object_make_logic(tach_clib_compare(args[0], args[1]) == 1);
 }
 
 tach_object *tach_lib_gte(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "gte takes 2 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "gte", argc, 2, 2);
     return tach_object_make_logic(tach_clib_compare(args[0], args[1]) != -1);
 }
 
 tach_object *tach_lib_lte(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "lte takes 2 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "lte", argc, 2, 2);
     return tach_object_make_logic(tach_clib_compare(args[0], args[1]) != 1);
 }
 
 tach_object *tach_lib_eq(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "gq takes 2 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "eq", argc, 2, 2);
     return tach_object_make_logic(tach_clib_compare(args[0], args[1]) == 0);
 }
 
 tach_object *tach_lib_neq(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "neq takes 2 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "neq", argc, 2, 2);
     return tach_object_make_logic(tach_clib_compare(args[0], args[1]) != 0);
 }
 
 tach_object *tach_lib_add(tach_state *state, uint32_t argc, tach_object **args) {
     tach_number *ret = tach_create_number(0);
     for (uint32_t i = 0; i < argc; i++) {
-        if (args[i]->type == tach_object_number) {
-            tach_number_add(ret, args[i]->value.number);
-        }
-        else {
-            fprintf(stderr, "add only takes numbers\n");
-            exit(1);
-        }
+        tach_errors_type_typecheck(state, "add", i, args[i], tach_object_number);
+        tach_number_add(ret, args[i]->value.number);
     }
     return tach_object_make_number(ret);
 }
@@ -293,94 +247,58 @@ tach_object *tach_lib_add(tach_state *state, uint32_t argc, tach_object **args) 
 tach_object *tach_lib_mul(tach_state *state, uint32_t argc, tach_object **args) {
     tach_number *ret = tach_create_number(1);
     for (uint32_t i = 0; i < argc; i++) {
-        if (args[i]->type == tach_object_number) {
-            tach_number_mul(ret, args[i]->value.number);
-        }
-        else {
-            fprintf(stderr, "mul only takes numbers\n");
-            exit(1);
-        }
+        tach_errors_type_typecheck(state, "mul", i, args[i], tach_object_number);
+        tach_number_mul(ret, args[i]->value.number);
     }
     return tach_object_make_number(ret);
 }
 
 tach_object *tach_lib_sub(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc < 1) {
-        fprintf(stderr, "sub takes 1 or more args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_number) {
-        fprintf(stderr, "sub only takes numbers\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "sub", argc, 1, 256);
+    tach_errors_type_typecheck(state, "sub", 0, args[0], tach_object_number);
     tach_number *ret = tach_number_copy(args[0]->value.number);
     for (uint32_t i = 1; i < argc; i++) {
-        if (args[i]->type == tach_object_number) {
-            tach_number_sub(ret, args[i]->value.number);
-        }
+        tach_errors_type_typecheck(state, "sub", i, args[i], tach_object_number);
+        tach_number_sub(ret, args[i]->value.number);
     }
     return tach_object_make_number(ret);
 }
 
 tach_object *tach_lib_div(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc < 1) {
-        fprintf(stderr, "div takes 1 or more args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_number) {
-        fprintf(stderr, "div only takes numbersn");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "div", argc, 1, 256);
+    tach_errors_type_typecheck(state, "div", 0, args[0], tach_object_number);
     tach_number *ret = tach_number_copy(args[0]->value.number);
     for (uint32_t i = 1; i < argc; i++) {
-        if (args[i]->type == tach_object_number) {
-            tach_number_div(ret, args[i]->value.number);
-        }
+        tach_errors_type_typecheck(state, "div", i, args[i], tach_object_number);
+        tach_number_div(ret, args[i]->value.number);
     }
     return tach_object_make_number(ret);
 }
 
 tach_object *tach_lib_get(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 1) {
-        fprintf(stderr, "get takes 1 arg\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "get", argc, 1, 1);
     tach_object *obj = tach_state_get(state, args[0]);
     obj->refc ++;
     return obj;
 }
 
 tach_object *tach_lib_call(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc < 1) {
-        fprintf(stderr, "call takes 1 or more args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "call", argc, 1, 256);
     tach_call(state, args[0], argc-1, args+1);
     return NULL;
 }
 
 tach_object *tach_lib_apply(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "apply takes 2 args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_point && args[0]->type != tach_object_func) {
-        fprintf(stderr, "apply takes function for argument 1\n");        
-        exit(1);
-    }
-    if (args[1]->type == tach_object_vector) {
-        fprintf(stderr, "apply takes vector for argument 2\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "apply", argc, 2, 2);
+    uint32_t oft[2] = {tach_object_point, tach_object_func};
+    tach_errors_type_typechecks(state, "apply", 0, args[0], oft, 2);
+    tach_errors_type_typecheck(state, "apply", 1, args[1], tach_object_number);
     tach_call(state, args[0], args[1]->value.vector->count, args[1]->value.vector->objects);
     return NULL;
 }
 
 tach_object *tach_lib_proc(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc < 2) {
-        fprintf(stderr, "proc takes 2 or more args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "proc", argc, 2, 256);
     tach_object *obj = args[argc-1];
     obj->value.point.argc = argc-2;
     obj->value.point.args = malloc(sizeof(tach_object *) * obj->value.point.argc);
@@ -393,37 +311,25 @@ tach_object *tach_lib_proc(tach_state *state, uint32_t argc, tach_object **args)
 }
 
 tach_object *tach_lib_set(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "set takes 2 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "set", argc, 2, 2);
     tach_set_table(state->locals[state->depth-1], args[0], args[1]);
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_upset(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "upset takes 2 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "upset", argc, 2, 2);
     tach_set_table(state->locals[state->depth-2], args[0], args[1]);
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_global(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr, "global takes 2 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "global", argc, 2, 2);
     tach_set_table(state->locals[0], args[0], args[1]);
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_if(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2 && argc != 3) {
-        fprintf(stderr, "if takes 2 or 3 args\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "if", argc, 2, 3);
     bool first = true;
     if (args[0]->type == tach_object_logic && !args[0]->value.logic) {
         first = false;
@@ -451,83 +357,56 @@ tach_object *tach_lib_if(tach_state *state, uint32_t argc, tach_object **args) {
 }
 
 tach_object *tach_lib_copy(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc == 0) {
-        fprintf(stderr, "copy takes 1 or more arguments\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "copy", argc, 1, 256);
     return tach_object_copy(args[argc-1]);
 }
 
 tach_object *tach_lib_table_concat(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc <= 1) {
-        fprintf(stderr, "table concat takes 1 or more args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_table) {
-        fprintf(stderr, "table concat takes 1 or more tables\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "table concat", argc, 1, 256);
+    tach_errors_type_typecheck(state, "table concat", 0, args[0], tach_object_table);
     for (uint32_t i = 1; i < argc; i++) {
-        if (args[i]->type != tach_object_table) {
-            fprintf(stderr, "table concat needs a table as arg %d\n", i);
-            exit(1);
-        }
+        tach_errors_type_typecheck(state, "table concat", i, args[i], tach_object_table);
         tach_table_merge_into(args[0]->value.table, args[i]->value.table);
     }
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_table_unpack(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 1) {
-        fprintf(stderr, "table unpack takes 1 arg\n");
-    }
-    if (args[0]->type != tach_object_table) {
-        fprintf(stderr, "table unpack takes a table\n");
-    }
+    tach_errors_type_argc(state, "table unpack", argc, 1, 1);
+    tach_errors_type_typecheck(state, "table unpack", 0, args[0], tach_object_table);
     tach_table_merge_into(state->locals[state->depth-1], args[0]->value.table);
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_vector_pop(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 1) {
-        fprintf(stderr,"vector pop takes 1 arg\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_vector) {
-        fprintf(stderr, "vector pop takes a vetor\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "vector pop", argc, 1, 1);
+    tach_errors_type_typecheck(state, "vector pop", 0, args[0], tach_object_vector);
     tach_vector_pop(args[0]->value.vector);
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_vector_concat(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 2) {
-        fprintf(stderr,"vector concat takes 2 args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_vector || args[1]->type != tach_object_vector) {
-        fprintf(stderr, "vector concat takes vetor vector\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "vector concat", argc, 1, 256);
+    tach_errors_type_typecheck(state, "vector concat", 0, args[0], tach_object_vector);
+    // if (args[0]->type != tach_object_vector || args[1]->type != tach_object_vector) {
+    //     fprintf(stderr, "vector concat takes vetor vector\n");
+    //     exit(1);
+    // }
     tach_vector *vec1 = args[0]->value.vector;
-    tach_vector *vec2 = args[1]->value.vector;
-    uint32_t count = vec2->count;
-    for (uint32_t i = 0; i < count; i++) {
-        tach_vector_push(vec1, vec2->objects[i]);
-    }    
+    for (uint32_t i = 1; i < argc; i++) {
+        tach_errors_type_typecheck(state, "vector concat", i, args[i], tach_object_vector);
+        tach_vector *vec2 = args[i]->value.vector;
+        uint32_t count = vec2->count;
+        for (uint32_t i = 0; i < count; i++) {
+            tach_vector_push(vec1, vec2->objects[i]);
+        }
+    }
     return tach_object_make_nil();
 }
 
 tach_object *tach_lib_vector_last(tach_state *state, uint32_t argc, tach_object **args) {
-        if (argc != 1) {
-        fprintf(stderr,"vector last takes 1 arg\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_vector) {
-        fprintf(stderr, "vector last takes a vetor\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "vector last", argc, 1, 1);
+    tach_errors_type_typecheck(state, "vector last", 0, args[0], tach_object_vector);
     tach_object *ret = tach_vector_last(args[0]->value.vector);
     ret->refc ++;
     return ret;
@@ -554,14 +433,8 @@ tach_object *tach_lib_exit(tach_state *state, uint32_t argc, tach_object **args)
 }
 
 tach_object *tach_lib_vector_split(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc < 2) {
-        fprintf(stderr, "vector split takes 2 or more args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_vector) {
-        fprintf(stderr, "vector split vector as arg 1\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "vector split", argc, 2, 256);
+    tach_errors_type_typecheck(state, "vector split", 0, args[0], tach_object_vector);
     tach_vector *orig = args[0]->value.vector;
     tach_vector *cur = tach_create_vector();
     tach_vector *ret = tach_create_vector();
@@ -583,20 +456,9 @@ tach_object *tach_lib_vector_split(tach_state *state, uint32_t argc, tach_object
 }
 
 tach_object *tach_lib_string_split(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc < 2) {
-        fprintf(stderr, "string split takes 2 or more args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_string) {
-        fprintf(stderr, "string split string as its first arg\n");
-        exit(1);
-    }
-    for (uint32_t i = 1; i < argc; i++) {
-        if (args[i]->type != tach_object_string) {
-            fprintf(stderr, "string split string as arg %d\n", i);
-            exit(1);
-        }
-    }
+    tach_errors_type_argc(state, "string split", argc, 2, 2);
+    tach_errors_type_typecheck(state, "string split", 0, args[0], tach_object_string);
+    tach_errors_type_typecheck(state, "string split", 1, args[1], tach_object_string);
     char *fst = args[0]->value.string.str;
     char *snd = args[1]->value.string.str;
     uint32_t tot = args[0]->value.string.count;
@@ -635,18 +497,9 @@ tach_object *tach_lib_string_split(tach_state *state, uint32_t argc, tach_object
 }
 
 tach_object *tach_lib_string_index(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc < 2) {
-        fprintf(stderr, "string index takes 2 or more args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_string) {
-        fprintf(stderr, "string index takes string as arg 1\n");
-        exit(1);
-    }
-    if (args[1]->type != tach_object_number) {
-        fprintf(stderr, "string index takes number as arg 2\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "string index", argc, 2, 2);
+    tach_errors_type_typecheck(state, "string index", 0, args[0], tach_object_string);
+    tach_errors_type_typecheck(state, "string index", 1, args[1], tach_object_number);
     int32_t ind = tach_number_double(args[1]->value.number);
     tach_string str = args[0]->value.string;
     char c;
@@ -672,22 +525,10 @@ tach_object *tach_lib_string_index(tach_state *state, uint32_t argc, tach_object
 }
 
 tach_object *tach_lib_vector_slice(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 3) {
-        fprintf(stderr, "vector slice takes 3 args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_vector) {
-        fprintf(stderr, "vector slice takes vector as arg 1\n");
-        exit(1);
-    }
-    if (args[1]->type != tach_object_number) {
-        fprintf(stderr, "vector slice takes number as arg 2\n");
-        exit(1);
-    }
-    if (args[2]->type != tach_object_number) {
-        fprintf(stderr, "vector slice takes number as arg 3\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "vector slice", argc, 3, 3);
+    tach_errors_type_typecheck(state, "vector slice", 0, args[0], tach_object_vector);
+    tach_errors_type_typecheck(state, "vector slice", 1, args[1], tach_object_number);
+    tach_errors_type_typecheck(state, "vector slice", 2, args[2], tach_object_number);
     tach_vector *vec = args[0]->value.vector;
     int32_t begin = tach_number_double(args[1]->value.number);
     int32_t end = tach_number_double(args[2]->value.number);
@@ -719,22 +560,10 @@ tach_object *tach_lib_vector_slice(tach_state *state, uint32_t argc, tach_object
 }
 
 tach_object *tach_lib_string_slice(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 3) {
-        fprintf(stderr, "string slice takes 3 args\n");
-        exit(1);
-    }
-    if (args[0]->type != tach_object_string) {
-        fprintf(stderr, "string slice takes string as arg 1\n");
-        exit(1);
-    }
-    if (args[1]->type != tach_object_number) {
-        fprintf(stderr, "string slice takes number as arg 2\n");
-        exit(1);
-    }
-    if (args[2]->type != tach_object_number) {
-        fprintf(stderr, "string slice takes number as arg 3\n");
-        exit(1);
-    }
+    tach_errors_type_argc(state, "string slice", argc, 3, 3);
+    tach_errors_type_typecheck(state, "string slice", 0, args[0], tach_object_string);
+    tach_errors_type_typecheck(state, "string slice", 1, args[1], tach_object_number);
+    tach_errors_type_typecheck(state, "string slice", 2, args[2], tach_object_number);
     tach_string str = args[0]->value.string;
     int32_t begin = tach_number_double(args[1]->value.number);
     int32_t end = tach_number_double(args[2]->value.number);

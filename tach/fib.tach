@@ -6,4 +6,4 @@ proc fib n {
     }
 }
 
-print [fib 33]
+print [fib 25]

@@ -6,4 +6,4 @@ proc fac n {
     }
 }
 
-print [fac 20]
+print [fac 10]

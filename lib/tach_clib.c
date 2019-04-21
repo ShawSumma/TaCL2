@@ -1,5 +1,19 @@
 #include <tach.h>
 
+char *tach_clib_type_name(uint32_t id) {
+    switch (id) {
+        case tach_object_logic: return "logic";
+        case tach_object_nil: return "nil";
+        case tach_object_number: return "number";
+        case tach_object_point: return "point";
+        case tach_object_func: return "func";
+        case tach_object_string: return "string";
+        case tach_object_vector: return "vector";
+        case tach_object_table: return "table";
+    }
+    return "unknown";
+}
+
 char tach_clib_compare(tach_object *a, tach_object *b) {
     if (a->type < b->type) {
         return -1;

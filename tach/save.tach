@@ -3,10 +3,10 @@ proc fac n {
         copy 1
     } {
         if [eq $n 5] {
-            save-state (out/out.export.tach)
+            [state exit] (out/out.export.tach)
         }
         mul $n [fac [sub $n 1]]
     }
 }
 
-print [fac 100]
+print [fac 10]

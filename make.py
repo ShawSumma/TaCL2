@@ -6,7 +6,7 @@ import time
 from lib import libnames
 
 cc = "clang"
-opt = 'g'
+opt = '3'
 strip = True
 
 files = [
