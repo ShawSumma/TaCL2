@@ -5,7 +5,7 @@ char tach_clib_compare(tach_object *a, tach_object *b) {
         return -1;
     }
     if (a->type > b->type) {
-        return 0;
+        return 1;
     }
     switch (a->type) {
         case tach_object_logic: {

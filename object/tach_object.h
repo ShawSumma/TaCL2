@@ -22,6 +22,7 @@ struct tach_point {
 };
 
 struct tach_object {
+    uint32_t refc;
     union {
         bool logic;
         tach_point point;
@@ -41,7 +42,6 @@ struct tach_object {
         tach_object_vector,
         tach_object_table,
     } type;
-    uint32_t refc;
 };
 
 struct tach_table {
@@ -75,3 +75,4 @@ tach_object *tach_object_copy(tach_object *);
 tach_vector *tach_vector_copy(tach_vector *);
 tach_table *tach_table_copy(tach_table *);
 tach_string tach_string_copy(tach_string);
+void tach_table_merge_into(tach_table *, tach_table *);

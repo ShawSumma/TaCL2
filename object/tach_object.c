@@ -273,3 +273,12 @@ tach_string tach_string_copy(tach_string str) {
     tach_string ret = tach_create_string(str.str);
     return ret;
 }
+
+void tach_table_merge_into(tach_table *to, tach_table *from) {
+    if (from == NULL) {
+        return;
+    }
+    tach_set_table(to, from->key, from->value);
+    tach_table_merge_into(to, from->left);
+    tach_table_merge_into(to, from->right);
+}

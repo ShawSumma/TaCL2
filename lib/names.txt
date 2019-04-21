@@ -1,10 +1,9 @@
 print
-get
-call
 proc
 set
 upset
 global
+get
 if
 copy
 add
@@ -17,11 +16,13 @@ lte
 gte
 eq
 neq
-str
-len
-save-state
-save-state-die
-run-state
+call
+apply
+exit
+pass
+state run
+state die
+state save
 table new
 table set
 table has
@@ -33,6 +34,11 @@ vector push
 vector pop
 vector concat
 vector last
+vector split
+vector slice
+string split
+string join
+string index
+string slice
 vars global
 vars local
-vars at

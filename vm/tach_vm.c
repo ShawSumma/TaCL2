@@ -133,6 +133,5 @@ void tach_program_run(tach_state *state, tach_program *prog) {
             }
         }
         state->place ++;
-        // printf("%d\n", state->stack->count);
     }
 }

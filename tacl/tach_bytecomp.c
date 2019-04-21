@@ -2,22 +2,22 @@
 
 tach_program *tach_read(tach_file *f) {
     tach_ast_proc *proc = tach_ast_read_proc(f, false);
-    tach_program *prog = tach_comp_main(proc);
+    tach_program *prog = tach_bytecomp_main(proc);
     tach_ast_free_proc(proc);    
     return prog;
 }
 
 tach_program *tach_read_repl(tach_file *f, tach_program *p) {
     if (p == NULL) {
-        p = tach_comp_main_empty();
+        p = tach_bytecomp_main_empty();
     }
     tach_ast_proc *proc = tach_ast_read_proc(f, true);
-    tach_program *prog = tach_comp_main_more(proc, p);
+    tach_program *prog = tach_bytecomp_main_more(proc, p);
     tach_ast_free_proc(proc);    
     return prog;
 }
 
-tach_program *tach_comp_main_empty() {
+tach_program *tach_bytecomp_main_empty() {
     tach_program *ret = malloc(sizeof(tach_program));
     ret->objcount = 0;
     ret->objalloc = 8;
@@ -28,8 +28,8 @@ tach_program *tach_comp_main_empty() {
     return ret;
 }
 
-tach_program *tach_comp_main(tach_ast_proc *proc) {
-    tach_program *ret = tach_comp_main_empty();
+tach_program *tach_bytecomp_main(tach_ast_proc *proc) {
+    tach_program *ret = tach_bytecomp_main_empty();
     for (uint32_t i = 0; i < proc->count; i++) {
         if (i != 0) {
             tach_program_realloc(ret);
@@ -37,19 +37,19 @@ tach_program *tach_comp_main(tach_ast_proc *proc) {
             ret->opcodes[ret->opcount].value = 0;
             ret->opcount ++;
         }
-        tach_comp_command(ret, proc->commands[i]);
+        tach_bytecomp_command(ret, proc->commands[i]);
     }
     return ret;
 }
 
-tach_program *tach_comp_main_more(tach_ast_proc *proc, tach_program *ret) {
+tach_program *tach_bytecomp_main_more(tach_ast_proc *proc, tach_program *ret) {
     for (uint32_t i = 0; i < proc->count; i++) {
-        tach_comp_command(ret, proc->commands[i]);
+        tach_bytecomp_command(ret, proc->commands[i]);
     }
     return ret;
 }
 
-void tach_comp_proc(tach_program *prog, tach_ast_proc *proc) {
+void tach_bytecomp_proc(tach_program *prog, tach_ast_proc *proc) {
     tach_program_realloc(prog);   
     uint32_t begin = prog->opcount;
     prog->opcodes[prog->opcount].type = tach_opcode_proc;
@@ -62,7 +62,7 @@ void tach_comp_proc(tach_program *prog, tach_ast_proc *proc) {
             prog->opcodes[prog->opcount].value = 0;
             prog->opcount ++;
         }
-        tach_comp_command(prog, proc->commands[i]);
+        tach_bytecomp_command(prog, proc->commands[i]);
     }
     if (proc->count == 0) {
         tach_program_realloc(prog);
@@ -79,13 +79,13 @@ void tach_comp_proc(tach_program *prog, tach_ast_proc *proc) {
     prog->opcount ++;
 }
 
-void tach_comp_command(tach_program *prog, tach_ast_command *cmd) {
+void tach_bytecomp_command(tach_program *prog, tach_ast_command *cmd) {
     if (cmd->count != 0) {
         if (cmd->singles[0]->type == tach_ast_single_string) {
             cmd->singles[0]->type = tach_ast_single_name;
         }
         for (uint32_t i = 0; i < cmd->count; i++) {
-            tach_comp_single(prog, cmd->singles[i]);
+            tach_bytecomp_single(prog, cmd->singles[i]);
         }
         tach_program_realloc(prog);
         prog->opcodes[prog->opcount].type = tach_opcode_call;
@@ -94,7 +94,7 @@ void tach_comp_command(tach_program *prog, tach_ast_command *cmd) {
     }
 }
 
-void tach_comp_single(tach_program *prog, tach_ast_single *single) {
+void tach_bytecomp_single(tach_program *prog, tach_ast_single *single) {
     tach_program_realloc(prog);
     switch (single->type) {
         case tach_ast_single_name:  {
@@ -123,11 +123,11 @@ void tach_comp_single(tach_program *prog, tach_ast_single *single) {
             break;
         }
         case tach_ast_single_proc: {
-            tach_comp_proc(prog, single->value.proc);
+            tach_bytecomp_proc(prog, single->value.proc);
             break;
         }
         case tach_ast_single_command: {
-            tach_comp_command(prog, single->value.command);
+            tach_bytecomp_command(prog, single->value.command);
             break;
         }
     }

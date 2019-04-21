@@ -16,10 +16,12 @@
 #include "tacl/tach_types.h"
 #include "files/tach_types.h"
 #include "lib/tach_types.h"
+#include "errors/tach_types.h"
 
 #include "object/tach_all.h"
 #include "vm/tach_all.h"
 #include "lib/tach_all.h"
 #include "tacl/tach_all.h"
 #include "files/tach_all.h"
+#include "errors/tach_all.h"
 #include "export/tach_export.h"

@@ -94,7 +94,7 @@ tach_ast_single *tach_ast_read_single(tach_file *f) {
         ret->value.string = tach_ast_read_name(f);
         return ret;
     }
-    if (got >= '0' && got <= '9') {
+    if ((got >= '0' && got <= '9') || got == '-') {
         tach_ungetc(got, f);
         tach_ast_single *ret = malloc(sizeof(tach_ast_single));
         ret->type = tach_ast_single_number;
@@ -170,7 +170,7 @@ char *tach_ast_read_number(tach_file *f) {
     uint32_t alloc = 16;
     char *name = malloc(sizeof(char) * alloc);
     uint32_t place = 0;
-    while ((got >= '0' && got <= '9')) {
+    while ((got >= '0' && got <= '9') || got == '/' || got == '-') {
         if (place + 4 > alloc) {
             alloc *= 1.5;
             name = realloc(name, sizeof(char) * alloc);

@@ -1,0 +1,15 @@
+set x [[table new]
+    cat meow
+    dog woof
+]
+
+set y [[table new]
+    cow moo
+    wolf howl
+
+]
+[table concat] $x $y
+print [x cow]
+
+[table unpack] $x
+print $wolf
