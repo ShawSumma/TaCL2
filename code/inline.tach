@@ -1,0 +1,4 @@
+print hello world
+proc say x {print $x}
+print $say
+say 10

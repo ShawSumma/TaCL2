@@ -388,10 +388,6 @@ tach_object *tach_lib_vector_pop(tach_state *state, uint32_t argc, tach_object *
 tach_object *tach_lib_vector_concat(tach_state *state, uint32_t argc, tach_object **args) {
     tach_errors_type_argc(state, "vector concat", argc, 1, 256);
     tach_errors_type_typecheck(state, "vector concat", 0, args[0], tach_object_vector);
-    // if (args[0]->type != tach_object_vector || args[1]->type != tach_object_vector) {
-    //     fprintf(stderr, "vector concat takes vetor vector\n");
-    //     exit(1);
-    // }
     tach_vector *vec1 = args[0]->value.vector;
     for (uint32_t i = 1; i < argc; i++) {
         tach_errors_type_typecheck(state, "vector concat", i, args[i], tach_object_vector);

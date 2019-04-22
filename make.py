@@ -5,9 +5,9 @@ import os
 import time
 from lib import libnames
 
-cc = "clang"
+cc = "gcc"
 opt = '3'
-strip = True
+strip = False
 
 files = [
     'errors/tach_errors',
@@ -30,20 +30,14 @@ files = [
 libnames.main()
 
 for i in files:
-    cmd = [cc, '-c', '-I./', '-O' + opt, '-std=c99', '-o', 'out/' + '_'.join(i.split('/')) + '.o', i + '.c']
+    cmd = [cc, '-c', '-I.', '-o', './out/' + i.replace('/', '_') + '.o', i + '.c']
     subprocess.run(cmd, check=True)
-    print(' '.join(cmd))
-lis = [cc, '-o', './tachvm', '-lgmp', '-O3']
-for i in files:
-    lis.append('out/' + '_'.join(i.split('/')) + '.o')
-print(' '.join(lis[:5]), '\\\n  ' + ' \\\n  '.join(lis[5:]))
-subprocess.run(lis, check=True)
-for i in files:
-    cmd = ['rm', 'out/' + '_'.join(i.split('/')) + '.o']
-    print(' '.join(cmd))
+
+
+cmd = ['ar', 'rcs', 'libtach.a'] + ['./out/' + i.replace('/', '_') + '.o' for i in files[:-1]]
+subprocess.run(cmd, check=True)
+
+cmd = [cc, '-o', files[-1], files[-1] + '.c', '-I.', '-L.', '-ltach', '-lgmp']
+subprocess.run(cmd, check=True)
 
 libnames.clear()
-if strip:
-    cmd = ['strip', './tachvm']
-    subprocess.run(cmd, check=True)
-    print(' '.join(cmd))

@@ -1,6 +1,6 @@
 #include <tach.h>
 
-tach_ast_proc *tach_ast_read_proc(tach_file *f, bool one) {
+tach_ast_proc *tach_ast_read_proc(tach_file *f, bool isonce) {
     tach_ast_proc *ret = malloc(sizeof(tach_ast_proc));
 
     uint32_t alloc = 4;
@@ -9,24 +9,23 @@ tach_ast_proc *tach_ast_read_proc(tach_file *f, bool one) {
     tach_ast_command **commands = malloc(sizeof(tach_ast_command *) * alloc);
 
     char got = tach_getc(f);
-    if (got == '{') {
-        got = tach_getc(f);
+    if (got != '{') {
+        tach_ungetc(got, f);
     }
-    tach_ungetc(got, f);
     while (true) {
         got = tach_getc(f);
         while (got == '\r' || got == '\n' || got == ';' || got == '\t' || got == ' ' || got == ']') {
             got = tach_getc(f);
         }
         if (got == '}' || got == EOF) break;
-        tach_ungetc(got, f);
         if (count + 4 >= alloc) {
             alloc *= 1.5;
             commands = realloc(commands, sizeof(tach_ast_command *) * alloc);
         }
+        tach_ungetc(got, f);
         commands[count] = tach_ast_read_command(f, false);
         count ++;
-        if (one) break;
+        if (isonce) break;
     }
 
     ret->commands = commands;
@@ -68,11 +67,14 @@ tach_ast_command *tach_ast_read_command(tach_file *f, bool issub) {
                 break;
             }
         }
+        if (got == '}') {
+            break;
+        }
         tach_ungetc(got, f);
         singles[count] = tach_ast_read_single(f);
         count ++;
     }
-
+    tach_ungetc(got, f);
     ret->singles = singles;
     ret->count = count;
 
@@ -114,7 +116,7 @@ tach_ast_single *tach_ast_read_single(tach_file *f) {
         ret->value.command = tach_ast_read_command(f, true);
         return ret;
     }
-    fprintf(stderr, "error reading file\n");
+    fprintf(stderr, "error reading file %c\n", got);
     exit(1);
 }
 

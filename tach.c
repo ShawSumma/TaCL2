@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
         }
         tach_free_program(prog);
         tach_free_state(state);
-    } 
+    }
     else {
         tach_file *f = tach_fopen(argv[1], "r");
         if (f != NULL) {

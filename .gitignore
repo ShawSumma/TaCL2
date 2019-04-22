@@ -1,11 +1,12 @@
 .vscode
 perf*
-tacl/tacl.so
-tachvm
 out/*
 out
 lib/tach_conv.c
 lib/tach_libname.h
 lib/tach_lib.h
-*/*.o
+*/*.so
 __pycache__
+tach
+libtach.a
+ctest/test
