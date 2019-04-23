@@ -2,12 +2,14 @@
 
 int main(int argc, char **argv) {
     if (argc < 2) {
+        tach_ast_state *astc = tach_create_ast_state();
         tach_state *state = tach_create_state();
         tach_program *prog = NULL;
         while (true) {
-            prog = tach_read_repl(tach_pfopen(stdin), prog);
+            prog = tach_read_repl(astc, tach_pfopen(stdin), prog);
             tach_program_run(state, prog);
         }
+        free(astc);
         tach_free_program(prog);
         tach_free_state(state);
     }

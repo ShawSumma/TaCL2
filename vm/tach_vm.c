@@ -32,21 +32,19 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
     else if (fn->type == tach_object_table || fn->type == tach_object_vector) {
         while (fn->type == tach_object_table || fn->type == tach_object_vector) {
             if (fn->type == tach_object_table) {
+                tach_object *old = fn;
                 fn = tach_get_table(fn->value.table, args[0]);
                 if (fn == NULL) {
-                    fprintf(stderr, "table index not known\n");
-                    exit(1);
+                    tach_errors_builtin_table_index(state, old);
                 }
             }
             else {
-                if (args[0]->type != tach_object_number) {
-                    fprintf(stderr, "vectors take ints as indexes\n");
-                    exit(1);
-                }
-                uint32_t pl = tach_number_double(args[0]->value.number);
-                if (pl >= fn->value.vector->count) {
-                    fprintf(stderr, "vector index out of range\n");
-                    exit(1);
+                tach_errors_type_typecheck_anon(state, args[0], tach_object_vector);
+                int32_t pl = tach_number_double(args[0]->value.number);
+                int32_t size = fn->value.vector->count;
+                tach_errors_index(state, pl, -(size-1), size-1);
+                if (pl < 0) {
+                    pl += size;
                 }
                 fn = fn->value.vector->objects[pl];
             }
@@ -55,7 +53,9 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
         tach_vector_push(state->stack, fn);
     }
     else {
-        fprintf(stderr, "call error!\n");
+        char *bad = tach_clib_type_name(fn->type);
+    tach_errors_lineout(state);
+        fprintf(stderr, "cannot call object of type %s\n", bad);
         exit(1);
     }
 }
@@ -71,8 +71,9 @@ tach_object *tach_state_get(tach_state *state, tach_object *obj) {
             return got;
         }
     }
-    puts(tach_clib_tostring(obj).str);
-    printf("variable not found\n");
+    char *bad = tach_clib_tostring(obj).str;
+    tach_errors_lineout(state);
+    printf("variable %s not found\n", bad);
     exit(1);
 }
 

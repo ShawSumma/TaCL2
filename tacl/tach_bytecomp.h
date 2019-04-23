@@ -9,4 +9,4 @@ void tach_bytecomp_command(tach_program *, tach_ast_command *);
 void tach_bytecomp_single(tach_program *, tach_ast_single *);
 void tach_program_realloc(tach_program *);
 tach_program *tach_read(tach_file *);
-tach_program *tach_read_repl(tach_file *, tach_program *);
+tach_program *tach_read_repl(tach_ast_state *state, tach_file *, tach_program *);

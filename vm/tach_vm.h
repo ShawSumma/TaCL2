@@ -27,6 +27,8 @@ struct tach_opcode {
 struct tach_program {
     tach_object **objs;
     tach_opcode *opcodes;
+    uint32_t *linenos;
+    uint32_t *colnos;
     uint32_t objcount;
     uint32_t objalloc;
     uint32_t opalloc;

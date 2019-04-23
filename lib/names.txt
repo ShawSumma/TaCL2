@@ -20,9 +20,7 @@ call
 apply
 exit
 pass
-state run
-state die
-state save
+incr
 table new
 table set
 table has

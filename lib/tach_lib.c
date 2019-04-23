@@ -39,6 +39,7 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "eq", tach_object_make_func(tach_lib_eq));
     tach_create_state_regester(ret->locals[0], "neq", tach_object_make_func(tach_lib_neq));
     tach_create_state_regester(ret->locals[0], "exit", tach_object_make_func(tach_lib_exit));
+    tach_create_state_regester(ret->locals[0], "incr", tach_object_make_func(tach_lib_incr));
 
     tach_create_state_regester(ret->locals[0], "true", tach_object_make_logic(true));
     tach_create_state_regester(ret->locals[0], "false", tach_object_make_logic(false));
@@ -66,12 +67,6 @@ tach_state *tach_create_state() {
     tach_create_state_regester(vars, "global", tach_object_make_func(tach_lib_vars_global));
     tach_create_state_regester(vars, "local", tach_object_make_func(tach_lib_vars_local));
     tach_create_state_regester(ret->locals[0], "vars", tach_object_make_table(vars));
-
-    tach_table *libstate = tach_create_table();
-    tach_create_state_regester(libstate, "exit", tach_object_make_func(tach_lib_state_die));
-    tach_create_state_regester(libstate, "save", tach_object_make_func(tach_lib_state_save));
-    tach_create_state_regester(libstate, "run", tach_object_make_func(tach_lib_state_run));
-    tach_create_state_regester(ret->locals[0], "state", tach_object_make_table(libstate));
     
     tach_table *libstring = tach_create_table();
     tach_create_state_regester(libstring, "join", tach_object_make_func(tach_lib_string_join));
@@ -81,46 +76,6 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "string", tach_object_make_table(libstring));
 
     return ret;
-}
-
-tach_object *tach_lib_state_save(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 1) {
-        fprintf(stderr, "save-state takes 1 arg\n");
-    }
-    tach_file *f = tach_fopen(args[0]->value.string.str, "wb");
-    tach_export_program_to_file(state->program, f);
-    tach_export_state_to_file(state, f);
-    tach_fclose(f);
-    return tach_object_make_nil();
-}
-
-tach_object *tach_lib_state_die(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 1) {
-        fprintf(stderr, "save-state-die takes 1 arg\n");
-    }
-    tach_file *f = tach_fopen(args[0]->value.string.str, "wb");
-    tach_export_program_to_file(state->program, f);
-    tach_export_state_to_file(state, f);
-    tach_fclose(f);
-    exit(0);
-}
-
-tach_object *tach_lib_state_run(tach_state *state, uint32_t argc, tach_object **args) {
-    if (argc != 1) {
-        fprintf(stderr, "run-state takes 1 arg\n");
-    }
-    tach_file *f = tach_fopen(args[0]->value.string.str, "rb");
-    tach_program *prog = tach_export_file_to_program(f);
-    tach_state *new_state = tach_export_file_to_state(f);
-    tach_fclose(f);
-    new_state->place ++;
-    tach_object *obj = tach_object_make_nil();
-    tach_vector_push(new_state->stack, obj);
-    tach_free_object(obj);
-    tach_program_run(new_state, prog);
-    tach_free_state(new_state);
-    tach_free_program(prog);
-    return tach_object_make_nil();
 }
 
 tach_object *tach_lib_vector_new(tach_state *state, uint32_t argc, tach_object **args) {
@@ -242,6 +197,14 @@ tach_object *tach_lib_add(tach_state *state, uint32_t argc, tach_object **args) 
         tach_number_add(ret, args[i]->value.number);
     }
     return tach_object_make_number(ret);
+}
+
+tach_object *tach_lib_incr(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_errors_type_argc(state, "incr", argc, 1, 1);
+    tach_number *n = tach_create_number(1);
+    tach_number_add(tach_state_get(state, args[0])->value.number, n);
+    tach_free_number(n);
+    return tach_object_make_nil();
 }
 
 tach_object *tach_lib_mul(tach_state *state, uint32_t argc, tach_object **args) {
@@ -499,19 +462,12 @@ tach_object *tach_lib_string_index(tach_state *state, uint32_t argc, tach_object
     int32_t ind = tach_number_double(args[1]->value.number);
     tach_string str = args[0]->value.string;
     char c;
+    tach_errors_index(state, ind, -(str.count+1), str.count-1);
     if (ind >= 0) {
-        if (ind >= str.count) {
-            fprintf(stderr, "string index out of too high\n");
-            exit(1);
-        }
         c = str.str[ind];
     }
     else {
         ind = str.count + ind; 
-        if (ind < 0) {
-            fprintf(stderr, "string index out of too low\n");
-            exit(1);
-        }
         c = str.str[ind];
     }
     char cs[2];
@@ -529,19 +485,13 @@ tach_object *tach_lib_vector_slice(tach_state *state, uint32_t argc, tach_object
     int32_t begin = tach_number_double(args[1]->value.number);
     int32_t end = tach_number_double(args[2]->value.number);
     uint32_t size = vec->count;
+    tach_errors_index(state, begin, -(size-1), size-1);
+    tach_errors_index(state, end, -(size-1), size-1);
     if (begin < 0) {
         begin += size;
     }
     if (end < 0) {
         end += size;
-    }
-    if (begin < 0 || end < 0) {
-        fprintf(stderr, "vector slice index out of too low\n");
-        exit(1);
-    }
-    if (begin > size || end > size) {
-        fprintf(stderr, "vector slice index out of too high\n");
-        exit(1);
     }
     if (begin > end) {
         int32_t hold = end;

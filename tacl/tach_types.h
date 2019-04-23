@@ -7,3 +7,5 @@ struct tach_ast_command;
 typedef struct tach_ast_command tach_ast_command;
 struct tach_ast_single;
 typedef struct tach_ast_single tach_ast_single;
+struct tach_ast_state;
+typedef struct tach_ast_state tach_ast_state;
