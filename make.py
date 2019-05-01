@@ -3,16 +3,14 @@ sys.dont_write_bytecode = True
 import subprocess
 import os
 import time
-from lib import libnames
 
-cc = 'clang'
-opt = 'z'
+cc = 'gcc'
+opt = '3'
 strip = False
 
 files = [
     'errors/tach_errors',
     'files/tach_files',
-    'lib/tach_conv',
     'lib/tach_clib',
     'lib/tach_lib',
     'object/tach_memory',
@@ -26,8 +24,6 @@ files = [
     'tach'
 ]
 
-libnames.main()
-
 for i in files:
     cmd = [cc, '-O'+opt, '-c', '-I.', '-o', './out/' + i.replace('/', '_') + '.o', i + '.c']
     subprocess.run(cmd, check=True)
@@ -35,11 +31,5 @@ for i in files:
 cmd = ['ar', 'rcs', 'libtach.a'] + ['./out/' + i.replace('/', '_') + '.o' for i in files[:-1]]
 subprocess.run(cmd, check=True)
 
-cmd = [cc, '-o', files[-1], files[-1] + '.c', '-I.', '-L.', '-ltach', '-lgmp']
+cmd = [cc, '-O3', '-o', files[-1], files[-1] + '.c', '-I.', '-L.', '-ltach', '-lgmp']
 subprocess.run(cmd, check=True)
-
-# from ctest import make
-
-cmd = ['strip', files[-1]]
-
-libnames.clear()

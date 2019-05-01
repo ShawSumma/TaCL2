@@ -2,9 +2,6 @@
 perf*
 out/*
 out
-lib/tach_conv.c
-lib/tach_libname.h
-lib/tach_lib.h
 */*.so
 __pycache__
 tach

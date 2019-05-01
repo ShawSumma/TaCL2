@@ -60,8 +60,11 @@ tach_ast_proc *tach_ast_read_proc(tach_ast_state *state, tach_file *f, bool ison
             commands = realloc(commands, sizeof(tach_ast_command *) * alloc);
         }
         tach_ast_state_ungetc(state, got, f);
-        commands[count] = tach_ast_read_command(state, f, false);
-        count ++;
+        tach_ast_command *cmd = tach_ast_read_command(state, f, false);
+        if (cmd != NULL) {
+            commands[count] = cmd;
+            count ++;
+        }
         if (isonce) break;
     }
 
@@ -81,6 +84,7 @@ tach_ast_command *tach_ast_read_command(tach_ast_state *state,tach_file *f, bool
 
     tach_ast_single **singles = malloc(sizeof(tach_ast_single *) * alloc);
     char got;
+    bool discard = false;
     while (true) {
         got = tach_ast_state_getc(state, f);
         if (count + 4 > alloc) {
@@ -106,6 +110,13 @@ tach_ast_command *tach_ast_read_command(tach_ast_state *state,tach_file *f, bool
         if (got == '}') {
             break;
         }
+        if (got == '#') {
+            got = tach_ast_state_getc(state, f);
+            discard = true;
+            while (got == '\t' || got == ' ') {
+                got = tach_ast_state_getc(state, f);
+            }
+        }
         tach_ast_state_ungetc(state, got, f);
         singles[count] = tach_ast_read_single(state, f);
         count ++;
@@ -116,6 +127,10 @@ tach_ast_command *tach_ast_read_command(tach_ast_state *state,tach_file *f, bool
     ret->singles = singles;
     ret->count = count;
 
+    if (discard) {
+        tach_ast_free_command(ret);
+        return NULL;
+    }
     return ret;
 }
 
@@ -152,7 +167,7 @@ tach_ast_single *tach_ast_read_single(tach_ast_state *state, tach_file *f) {
         ret->value.command = tach_ast_read_command(state, f, true);
         return ret;
     }
-    fprintf(stderr, "error reading file %c\n", got);
+    fprintf(stderr, "error reading file %d\n", got);
     exit(1);
 }
 
@@ -188,7 +203,7 @@ char *tach_ast_read_name(tach_ast_state *state, tach_file *f) {
         uint32_t alloc = 16;
         char *name = malloc(sizeof(char) * alloc);
         uint32_t place = 0;
-        while ((got >= 'A' && got <= 'Z') || (got >= 'a' && got <= 'z') || got == '_' || got == '-') {
+        while ((got >= 'A' && got <= 'Z') || (got >= 'a' && got <= 'z') || got == '_' || got == '-' || got == '.') {
             if (place + 4 > alloc) {
                 alloc *= 1.5;
                 name = realloc(name, sizeof(char) * alloc);

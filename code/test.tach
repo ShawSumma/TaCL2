@@ -1,9 +1,0 @@
-proc fac n {
-    if [gt 2 $n] {
-        $n
-    } {
-        mul $n [fac [sub $n 1]]
-    }
-}
-
-fac 5

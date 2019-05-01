@@ -1,0 +1,7 @@
+proc f x {
+    mul $x 2
+}
+# proc f x {
+    mul $x 3
+}
+print [f 10]

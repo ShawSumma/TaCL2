@@ -1,8 +1,8 @@
 #include <tach.h>
 
 void tach_errors_lineout(tach_state *state) {
-    if (state->depth > 12) {
-        for (uint32_t i = 1; i < 6; i ++) {
+    if (state->depth > 10) {
+        for (uint32_t i = 1; i < 5; i ++) {
             fprintf(
                 stderr,
                 "    from line %d col %d\n",
@@ -11,7 +11,7 @@ void tach_errors_lineout(tach_state *state) {
             );
         }
         fprintf(stderr, "    ...\n");
-        for (uint32_t i = state->depth-5; i < state->depth; i ++) {
+        for (uint32_t i = state->depth-3; i < state->depth; i ++) {
             fprintf(
                 stderr,
                 "    from line %d col %d\n",
@@ -57,12 +57,12 @@ void tach_errors_type_typecheck_anon(tach_state *state, tach_object *obj, uint32
 void tach_errors_index(tach_state *state, int32_t ind, int32_t min, int32_t max) {
     if (ind < min) {
         tach_errors_lineout(state);
-        fprintf(stderr, "index out of range %d is less than %d", ind, min);
+        fprintf(stderr, "index out of range %d is less than %d\n", ind, min);
         exit(1);
     }
     if (ind > max) {
         tach_errors_lineout(state);
-        fprintf(stderr, "index out of range %d is greater than %d", ind, max);
+        fprintf(stderr, "index out of range %d is greater than %d\n", ind, max);
         exit(1);
     }
 }

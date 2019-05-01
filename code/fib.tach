@@ -1,6 +1,6 @@
 proc fib n {
     if [lt $n 2] {
-        copy $n
+        pass $n
     } {
         add [fib [sub $n 1]] [fib [sub $n 2]]
     }

@@ -34,6 +34,10 @@ void tach_ast_free_single(tach_ast_single *p) {
             tach_ast_free_name(p->value.string);
             break;
         }
+        case tach_ast_single_number: {
+            tach_ast_free_name(p->value.number);
+            break;
+        }
         default: {
             break;
         }

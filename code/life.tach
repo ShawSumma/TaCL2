@@ -1,0 +1,121 @@
+
+proc fib n {
+    if [lt $n 2] {
+        pass $n
+    } {
+        add [fib [sub $n 2]] [fib [sub $n 1]]
+    }
+}
+
+proc vector-fill vec n val {
+    if [gt $n 0] {
+        [vector push] $vec [copy $val]
+        vector-fill $vec [sub $n 1] $val
+    }
+}
+
+proc view-line line {
+    if [gt [[vector len] $line] 0] {
+        if [eq [[vector last] $line] 0] {
+            echo (.)
+        } {
+            echo (#)
+        }
+        echo ( )
+        [vector pop] $line
+        view-line $line [sub $w 1]
+    } {
+        newline
+    }
+}
+
+proc view grid {
+    set grid [copy $grid]
+    if [gt [[vector len] $grid] 0] {
+        view-line [[vector last] $grid]
+        [vector pop] $grid
+        view $grid
+    }
+}
+
+proc friends-cell world w h {
+    set (w0) [world [add $w 1] [add $h 1]]
+    set (w1) [world [add $w 1] $h]
+    set (w2) [world [add $w 1] [sub $h 1]]
+    set (w3) [world $w [add $h 1]]
+    set (w4) [world $w [sub $h 1]]
+    set (w5) [world [sub $w 1] [add $h 1]]
+    set (w6) [world [sub $w 1] $h]
+    set (w7) [world [sub $w 1] [sub $h 1]]
+    add $(w0) $(w1) $(w2) $(w3) $(w4) $(w5) $(w6) $(w7) 
+} 
+
+proc evolve-cell world new w h{
+    set ns [friends-cell $world $h $w]
+    set cur [world $h $w]
+    if [eq $cur 1] {
+        if [gte $ns 2] {
+            if [lte $ns 3] {
+                [vector set] [new $h] $w 1
+            }
+        }
+    } {
+        if [eq $ns 3] {
+            [vector set] [new $h] $w 1
+        }
+    }
+}
+
+proc evolve-w old new w h {
+    if [lt [add $w 1] [[vector len] [old 0]]] {
+        evolve-cell $old $new $w $h
+        evolve-w $old $new [add $w 1] $h
+    }
+}
+
+proc evolve-h old new w h {
+    if [lt [add $h 1] [[vector len] $old]] {
+        evolve-w $old $new $w $h
+        evolve-h $old $new $w [add $h 1]
+    }
+}
+
+proc evolve world {
+    set child [game [[vector len] $world] [[vector len] [world 0]]]
+    evolve-h $world $child 1 1
+    pass $child
+}
+
+proc game w h {
+    set wide [[vector new]]
+    vector-fill $wide $w 0
+    set grid [[vector new]]
+    vector-fill $grid $h $wide
+    pass $grid
+}
+
+proc frame last n {
+    set evo [evolve $last]
+    # {
+        view $last
+        newline
+    }
+    if [neq $evo $last] {
+        frame $evo [add $n 1]
+    } {
+        pass $n
+    }
+}
+
+proc main w {
+    set h $w
+    set world [game $w $h]
+    [vector set] [world 5] [sub $h 5] 1
+    [vector set] [world 6] [sub $h 5] 1
+    [vector set] [world 7] [sub $h 5] 1
+    [vector set] [world 7] [sub $h 4] 1
+    [vector set] [world 6] [sub $h 3] 1
+    print [frame $world 0]
+}
+
+main 50

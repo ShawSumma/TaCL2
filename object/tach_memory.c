@@ -67,6 +67,8 @@ void tach_free_program(tach_program *prog) {
         tach_free_object(prog->objs[i]);
     }
     free(prog->objs);
+    free(prog->linenos);
+    free(prog->colnos);
     free(prog);
 }
 

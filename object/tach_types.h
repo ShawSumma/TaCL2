@@ -11,6 +11,8 @@ struct tach_point;
 typedef struct tach_point tach_point;
 struct tach_string;
 typedef struct tach_string tach_string;
+struct tach_func;
+typedef struct tach_func tach_func;
 struct tach_table;
 typedef struct tach_table tach_table;
 

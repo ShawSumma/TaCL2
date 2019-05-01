@@ -9,7 +9,7 @@ void tach_create_state_regester(tach_table *table, char *str, tach_object *obj) 
 
 void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object **args) {
     if (fn->type == tach_object_func) {
-        tach_object *obj = fn->value.func(state, count, args);
+        tach_object *obj = fn->value.func.func(state, count, args);
         if (obj != NULL) {
             tach_vector_push(state->stack, obj);
             tach_free_object(obj);
@@ -30,7 +30,7 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
         state->depth ++;
     }
     else if (fn->type == tach_object_table || fn->type == tach_object_vector) {
-        while (fn->type == tach_object_table || fn->type == tach_object_vector) {
+        while ((fn->type == tach_object_table || fn->type == tach_object_vector) && count > 0) {
             if (fn->type == tach_object_table) {
                 tach_object *old = fn;
                 fn = tach_get_table(fn->value.table, args[0]);
@@ -38,8 +38,8 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
                     tach_errors_builtin_table_index(state, old);
                 }
             }
-            else {
-                tach_errors_type_typecheck_anon(state, args[0], tach_object_vector);
+            else if (fn->type == tach_object_vector) {
+                tach_errors_type_typecheck_anon(state, args[0], tach_object_number);
                 int32_t pl = tach_number_double(args[0]->value.number);
                 int32_t size = fn->value.vector->count;
                 tach_errors_index(state, pl, -(size-1), size-1);
@@ -48,13 +48,17 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
                 }
                 fn = fn->value.vector->objects[pl];
             }
+            else {
+                tach_errors_type_typecheck_anon(state, args[0], tach_object_vector);
+            }
+            count --;
             args ++;
         }
         tach_vector_push(state->stack, fn);
     }
     else {
         char *bad = tach_clib_type_name(fn->type);
-    tach_errors_lineout(state);
+        tach_errors_lineout(state);
         fprintf(stderr, "cannot call object of type %s\n", bad);
         exit(1);
     }

@@ -69,28 +69,14 @@ char tach_clib_compare(tach_object *a, tach_object *b) {
             return 0;
         }
         case tach_object_func: {
-            tach_string sa = tach_create_string(tach_func_to_name(a->value.func));
-            tach_string sb = tach_create_string(tach_func_to_name(a->value.func));
-            if (sa.count < sb.count) {
+            void *sa = a->value.func.func;
+            void *sb = b->value.func.func;
+            if (sa < sb) {
                 return -1;
             }
-            if (sa.count > sb.count) {
+            if (sa > sb) {
                 return 1;
             }
-            for (uint32_t i = 0; i < sa.count; i++) {
-                if (sa.str[i] < sb.str[i]) {
-                    free(sa.str);
-                    free(sb.str);
-                    return -1;
-                }
-                if (sa.str[i] > sb.str[i]) {
-                    free(sa.str);
-                    free(sb.str);
-                    return 1;
-                }
-            }
-            free(sa.str);
-            free(sb.str);
             return 0;
         }
         case tach_object_vector: {

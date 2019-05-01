@@ -131,7 +131,6 @@ void tach_bytecomp_single(tach_program *prog, tach_ast_single *single) {
             prog->objs[prog->objcount] = tach_object_make_number(tach_create_number_string(single->value.number));
             prog->opcount ++;
             prog->objcount ++;
-            free(single->value.number);
             break;
         }
         case tach_ast_single_string: {

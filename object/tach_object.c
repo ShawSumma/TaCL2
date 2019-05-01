@@ -42,10 +42,10 @@ tach_object *tach_object_make_string(tach_string s) {
     return ret;
 }
 
-tach_object *tach_object_make_func(tach_func f) {
+tach_object *tach_object_make_func(tach_func_fp f) {
     tach_object *ret = tach_object_alloc();
     ret->type = tach_object_func;
-    ret->value.func = f;
+    ret->value.func.func = f;
     return ret;
 }
 
@@ -222,7 +222,7 @@ tach_object *tach_object_copy(tach_object *obj) {
             return ret;
         }
         case tach_object_func: {
-            return tach_object_make_func(obj->value.func);
+            return tach_object_make_func(obj->value.func.func);
         }
         case tach_object_string: {
             return tach_object_make_string(tach_string_copy(obj->value.string));

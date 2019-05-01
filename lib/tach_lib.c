@@ -12,6 +12,8 @@ tach_state *tach_create_state() {
     ret->place = 0;
     
     tach_create_state_regester(ret->locals[0], "print", tach_object_make_func(tach_lib_print));
+    tach_create_state_regester(ret->locals[0], "echo", tach_object_make_func(tach_lib_echo));
+    tach_create_state_regester(ret->locals[0], "newline", tach_object_make_func(tach_lib_newline));
     
     tach_create_state_regester(ret->locals[0], "add", tach_object_make_func(tach_lib_add));
     tach_create_state_regester(ret->locals[0], "mul", tach_object_make_func(tach_lib_mul));
@@ -61,6 +63,7 @@ tach_state *tach_create_state() {
     tach_create_state_regester(vector, "pop", tach_object_make_func(tach_lib_vector_pop));
     tach_create_state_regester(vector, "last", tach_object_make_func(tach_lib_vector_last));
     tach_create_state_regester(vector, "split", tach_object_make_func(tach_lib_vector_split));
+    tach_create_state_regester(vector, "len", tach_object_make_func(tach_lib_vector_len));
     tach_create_state_regester(ret->locals[0], "vector", tach_object_make_table(vector));
 
     tach_table *vars = tach_create_table();
@@ -84,6 +87,12 @@ tach_object *tach_lib_vector_new(tach_state *state, uint32_t argc, tach_object *
         tach_vector_push(vec, args[i]);
     }
     return tach_object_make_vector(vec);
+}
+
+tach_object *tach_lib_vector_len(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_errors_type_argc(state, "vector len", argc, 1, 1);
+    tach_errors_type_typecheck(state, "vector len", 0, args[0], tach_object_vector);
+    return tach_object_make_number(tach_create_number(args[0]->value.vector->count));
 }
 
 tach_object *tach_lib_vector_set(tach_state *state, uint32_t argc, tach_object **args) {
@@ -156,6 +165,21 @@ tach_object *tach_lib_print(tach_state *state, uint32_t argc, tach_object **args
         printf("%s", str.str);
         free(str.str);
     }
+    printf("\n");
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_echo(tach_state *state, uint32_t argc, tach_object **args) {
+    for (uint32_t i = 0; i < argc; i++) {
+        tach_string str = tach_clib_tostring(args[i]);
+        printf("%s", str.str);
+        free(str.str);
+    }
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_newline(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_errors_type_argc(state, "newline", argc, 0, 0);
     printf("\n");
     return tach_object_make_nil();
 }
