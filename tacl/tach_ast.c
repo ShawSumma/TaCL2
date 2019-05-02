@@ -203,7 +203,7 @@ char *tach_ast_read_name(tach_ast_state *state, tach_file *f) {
         uint32_t alloc = 16;
         char *name = malloc(sizeof(char) * alloc);
         uint32_t place = 0;
-        while ((got >= 'A' && got <= 'Z') || (got >= 'a' && got <= 'z') || got == '_' || got == '-' || got == '.') {
+        while ((got >= 'A' && got <= 'Z') || (got >= 'a' && got <= 'z') || (got >= '0' && got <= '9') || got == '_' || got == '-' || got == '.') {
             if (place + 4 > alloc) {
                 alloc *= 1.5;
                 name = realloc(name, sizeof(char) * alloc);

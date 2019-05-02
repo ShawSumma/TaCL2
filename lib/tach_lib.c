@@ -1,15 +1,9 @@
 #include <tach.h>
 
-tach_state *tach_create_state() {
-    tach_state *ret = malloc(sizeof(tach_state));
-    ret->depth = 1;
-    ret->callalloc = 8;
-    ret->calls = malloc(sizeof(uint32_t) * ret->callalloc);
-    ret->locals = malloc(sizeof(tach_table *) * ret->callalloc);
-    ret->stack = tach_create_vector();
-    ret->calls[0] = -1;
-    ret->locals[0] = tach_create_table();
-    ret->place = 0;
+uint32_t max_argc = 256 * 256;
+
+tach_state *tach_create_state(tach_program *prog) {
+    tach_state *ret = tach_create_state_empty(prog);
     
     tach_create_state_regester(ret->locals[0], "print", tach_object_make_func(tach_lib_print));
     tach_create_state_regester(ret->locals[0], "echo", tach_object_make_func(tach_lib_echo));
@@ -21,6 +15,7 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "sub", tach_object_make_func(tach_lib_sub));
 
     tach_create_state_regester(ret->locals[0], "call", tach_object_make_func(tach_lib_call));
+    tach_create_state_regester(ret->locals[0], "uplevel", tach_object_make_func(tach_lib_uplevel));
     tach_create_state_regester(ret->locals[0], "apply", tach_object_make_func(tach_lib_apply));
     tach_create_state_regester(ret->locals[0], "proc", tach_object_make_func(tach_lib_proc));
 
@@ -43,6 +38,8 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "exit", tach_object_make_func(tach_lib_exit));
     tach_create_state_regester(ret->locals[0], "incr", tach_object_make_func(tach_lib_incr));
 
+    tach_create_state_regester(ret->locals[0], "count", tach_object_make_func(tach_lib_count));
+
     tach_create_state_regester(ret->locals[0], "true", tach_object_make_logic(true));
     tach_create_state_regester(ret->locals[0], "false", tach_object_make_logic(false));
 
@@ -57,13 +54,14 @@ tach_state *tach_create_state() {
     tach_table *vector = tach_create_table();
     tach_create_state_regester(vector, "new", tach_object_make_func(tach_lib_vector_new));
     tach_create_state_regester(vector, "set", tach_object_make_func(tach_lib_vector_set));
+    tach_create_state_regester(vector, "len", tach_object_make_func(tach_lib_vector_len));
     tach_create_state_regester(vector, "push", tach_object_make_func(tach_lib_vector_push));
     tach_create_state_regester(vector, "concat", tach_object_make_func(tach_lib_vector_concat));
     tach_create_state_regester(vector, "slice", tach_object_make_func(tach_lib_vector_slice));
     tach_create_state_regester(vector, "pop", tach_object_make_func(tach_lib_vector_pop));
     tach_create_state_regester(vector, "last", tach_object_make_func(tach_lib_vector_last));
     tach_create_state_regester(vector, "split", tach_object_make_func(tach_lib_vector_split));
-    tach_create_state_regester(vector, "len", tach_object_make_func(tach_lib_vector_len));
+    tach_create_state_regester(vector, "map", tach_object_make_func(tach_lib_vector_map));
     tach_create_state_regester(ret->locals[0], "vector", tach_object_make_table(vector));
 
     tach_table *vars = tach_create_table();
@@ -79,6 +77,55 @@ tach_state *tach_create_state() {
     tach_create_state_regester(ret->locals[0], "string", tach_object_make_table(libstring));
 
     return ret;
+}
+
+tach_object *tach_lib_uplevel(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_errors_type_argc(state, "uplevel", argc, 1, 1);
+    uint32_t types[] = {
+        tach_object_point,
+        tach_object_func
+    };
+    tach_errors_type_typechecks(state, "uplevel", 0, args[0], types, 2);
+    tach_call(state, args[0], argc-1, args+1);
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_count(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_errors_type_argc(state, "count", argc, 2, 2);
+
+    tach_errors_type_typecheck(state, "count", 0, args[0], tach_object_number);
+    uint32_t types[] = {
+        tach_object_point,
+        tach_object_func
+    };
+    tach_errors_type_typechecks(state, "count", 1, args[1], types, 2);
+    int32_t count = tach_number_double(args[0]->value.number);
+    for (int32_t i = 0; i < count; i++) {
+        tach_object *sarg[] = {tach_object_make_number(tach_create_number(i))};
+        tach_object *obj = tach_call(state, args[1], 1, sarg);
+        tach_free_object(sarg[0]);        
+        tach_free_object(obj);
+    }
+    return tach_object_make_nil();
+}
+
+tach_object *tach_lib_vector_map(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_errors_type_argc(state, "vector map", argc, 2, max_argc);
+    uint32_t types[] = {
+        tach_object_point,
+        tach_object_func
+    };
+    tach_errors_type_typechecks(state, "vector map", 0, args[0], types, 2);
+    tach_vector *ret = tach_create_vector();
+    tach_object *fn = args[0];
+    for (uint32_t i = 1; i < argc; i++) {
+        tach_errors_type_typecheck(state, "vector map", i, args[i], tach_object_vector);
+        tach_vector *vecin = args[i]->value.vector;
+        for (uint32_t i = 0; i < vecin->count; i++) {
+            tach_vector_push(ret, tach_call(state, fn, 1, vecin->objects+i));
+        }
+    }
+    return tach_object_make_vector(ret);
 }
 
 tach_object *tach_lib_vector_new(tach_state *state, uint32_t argc, tach_object **args) {
@@ -117,7 +164,7 @@ tach_object *tach_lib_table_has(tach_state *state, uint32_t argc, tach_object **
 }
 
 tach_object *tach_lib_vector_push(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_errors_type_argc(state, "vector push", argc, 1, 256);
+    tach_errors_type_argc(state, "vector push", argc, 1, max_argc);
     tach_errors_type_typecheck(state, "vector set", 0, args[0], tach_object_vector);
     for (uint32_t i = 1; i < argc; i++) {
         tach_vector_push(args[0]->value.vector, args[i]);
@@ -241,7 +288,7 @@ tach_object *tach_lib_mul(tach_state *state, uint32_t argc, tach_object **args) 
 }
 
 tach_object *tach_lib_sub(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_errors_type_argc(state, "sub", argc, 1, 256);
+    tach_errors_type_argc(state, "sub", argc, 1, max_argc);
     tach_errors_type_typecheck(state, "sub", 0, args[0], tach_object_number);
     tach_number *ret = tach_number_copy(args[0]->value.number);
     for (uint32_t i = 1; i < argc; i++) {
@@ -252,7 +299,7 @@ tach_object *tach_lib_sub(tach_state *state, uint32_t argc, tach_object **args) 
 }
 
 tach_object *tach_lib_div(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_errors_type_argc(state, "div", argc, 1, 256);
+    tach_errors_type_argc(state, "div", argc, 1, max_argc);
     tach_errors_type_typecheck(state, "div", 0, args[0], tach_object_number);
     tach_number *ret = tach_number_copy(args[0]->value.number);
     for (uint32_t i = 1; i < argc; i++) {
@@ -270,9 +317,8 @@ tach_object *tach_lib_get(tach_state *state, uint32_t argc, tach_object **args) 
 }
 
 tach_object *tach_lib_call(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_errors_type_argc(state, "call", argc, 1, 256);
-    tach_call(state, args[0], argc-1, args+1);
-    return NULL;
+    tach_errors_type_argc(state, "call", argc, 1, max_argc);
+    return tach_call(state, args[0], argc-1, args+1);
 }
 
 tach_object *tach_lib_apply(tach_state *state, uint32_t argc, tach_object **args) {
@@ -280,12 +326,11 @@ tach_object *tach_lib_apply(tach_state *state, uint32_t argc, tach_object **args
     uint32_t oft[2] = {tach_object_point, tach_object_func};
     tach_errors_type_typechecks(state, "apply", 0, args[0], oft, 2);
     tach_errors_type_typecheck(state, "apply", 1, args[1], tach_object_number);
-    tach_call(state, args[0], args[1]->value.vector->count, args[1]->value.vector->objects);
-    return NULL;
+    return tach_call(state, args[0], args[1]->value.vector->count, args[1]->value.vector->objects);
 }
 
 tach_object *tach_lib_proc(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_errors_type_argc(state, "proc", argc, 2, 256);
+    tach_errors_type_argc(state, "proc", argc, 2, max_argc);
     tach_object *obj = args[argc-1];
     obj->value.point.argc = argc-2;
     obj->value.point.args = malloc(sizeof(tach_object *) * obj->value.point.argc);
@@ -326,30 +371,27 @@ tach_object *tach_lib_if(tach_state *state, uint32_t argc, tach_object **args) {
     }
     if (argc == 2) {
         if (first) {
-            tach_call(state, args[1], 0, NULL);
-        }
-        else {
-            return tach_object_make_nil();
+            return tach_call(state, args[1], 0, NULL);
         }
     }
     else if (argc == 3) {
         if (first) {
-            tach_call(state, args[1], 0, NULL);
+            return tach_call(state, args[1], 0, NULL);
         }
         else {
-            tach_call(state, args[2], 0, NULL);
+            return tach_call(state, args[2], 0, NULL);
         }
     }
-    return NULL;
+    return tach_object_make_nil();
 }
 
 tach_object *tach_lib_copy(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_errors_type_argc(state, "copy", argc, 1, 256);
+    tach_errors_type_argc(state, "copy", argc, 1, max_argc);
     return tach_object_copy(args[argc-1]);
 }
 
 tach_object *tach_lib_table_concat(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_errors_type_argc(state, "table concat", argc, 1, 256);
+    tach_errors_type_argc(state, "table concat", argc, 1, max_argc);
     tach_errors_type_typecheck(state, "table concat", 0, args[0], tach_object_table);
     for (uint32_t i = 1; i < argc; i++) {
         tach_errors_type_typecheck(state, "table concat", i, args[i], tach_object_table);
@@ -373,7 +415,7 @@ tach_object *tach_lib_vector_pop(tach_state *state, uint32_t argc, tach_object *
 }
 
 tach_object *tach_lib_vector_concat(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_errors_type_argc(state, "vector concat", argc, 1, 256);
+    tach_errors_type_argc(state, "vector concat", argc, 1, max_argc);
     tach_errors_type_typecheck(state, "vector concat", 0, args[0], tach_object_vector);
     tach_vector *vec1 = args[0]->value.vector;
     for (uint32_t i = 1; i < argc; i++) {
@@ -416,7 +458,7 @@ tach_object *tach_lib_exit(tach_state *state, uint32_t argc, tach_object **args)
 }
 
 tach_object *tach_lib_vector_split(tach_state *state, uint32_t argc, tach_object **args) {
-    tach_errors_type_argc(state, "vector split", argc, 2, 256);
+    tach_errors_type_argc(state, "vector split", argc, 2, max_argc);
     tach_errors_type_typecheck(state, "vector split", 0, args[0], tach_object_vector);
     tach_vector *orig = args[0]->value.vector;
     tach_vector *cur = tach_create_vector();

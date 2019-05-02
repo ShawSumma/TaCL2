@@ -1,5 +1,49 @@
 #include <tach.h>
 
+void tach_free_vector(tach_vector *vec) {
+    for (uint32_t i = 0; i < vec->count; i++) {
+        tach_free_object(vec->objects[i]);
+    }
+    free(vec->objects);
+    free(vec);
+}
+
+void tach_free_state(tach_state *state) {
+    for (uint32_t i = 0; i < state->depth; i++) {
+        tach_free_table(state->locals[i]);
+    }
+    tach_free_program(state->program);
+    tach_free_vector(state->stack);
+    free(state->locals);
+    free(state->calls);
+    free(state);
+}
+
+void tach_free_program(tach_program *prog) {
+    free(prog->opcodes);
+    for (uint32_t i = 0; i < prog->objcount; i++) {
+        tach_free_object(prog->objs[i]);
+    }
+    free(prog->objs);
+    free(prog->linenos);
+    free(prog->colnos);
+    free(prog);
+}
+
+tach_state *tach_create_state_empty(tach_program *program) {
+    tach_state *ret = malloc(sizeof(tach_state));
+    ret->uplevels = 0;
+    ret->depth = 1;
+    ret->callalloc = 8;
+    ret->locals = malloc(sizeof(tach_table *) * ret->callalloc);
+    ret->calls = malloc(sizeof(uint32_t) * ret->callalloc);
+    ret->stack = tach_create_vector();
+    ret->locals[0] = tach_create_table();
+    ret->place = 0;
+    ret->program = program;
+    return ret;
+}
+
 void tach_create_state_regester(tach_table *table, char *str, tach_object *obj) {
     tach_object *key = tach_object_make_string(tach_create_string(str));
     tach_set_table(table, key, obj);
@@ -7,13 +51,10 @@ void tach_create_state_regester(tach_table *table, char *str, tach_object *obj) 
     tach_free_object(obj);
 }
 
-void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object **args) {
+tach_object *tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object **args) {
     if (fn->type == tach_object_func) {
-        tach_object *obj = fn->value.func.func(state, count, args);
-        if (obj != NULL) {
-            tach_vector_push(state->stack, obj);
-            tach_free_object(obj);
-        }
+        tach_object *got = fn->value.func.func(state, count, args);
+        return got;
     }
     else if(fn->type == tach_object_point) {
         if (state->depth + 4 > state->callalloc) {
@@ -23,16 +64,37 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
         }
         state->calls[state->depth] = state->place;
         state->locals[state->depth] = tach_create_table();
+        tach_object *keyargc = tach_object_make_string(tach_create_string("argc"));
+        tach_object *valargc = tach_object_make_number(tach_create_number(count));
+        tach_set_table(
+            state->locals[state->depth],
+            keyargc,
+            valargc
+        );
+        tach_free_object(keyargc);
+        tach_free_object(valargc);
+        for (uint32_t i = 0; i < count; i++) {
+            char name[8];
+            snprintf(name, 7, "%d", i);
+            tach_object *r = tach_object_make_string(tach_create_string(name));
+            tach_set_table(state->locals[state->depth], r, args[i]);
+            tach_free_object(r);
+        }
         for (uint32_t i = 0; i < fn->value.point.argc; i++) {
             tach_set_table(state->locals[state->depth], fn->value.point.args[i], args[i]);
         }
-        state->place = fn->value.point.point;
+        state->place = fn->value.point.point + 1;
         state->depth ++;
+        tach_object *got = tach_program_run(state);
+        state->depth --;
+        state->place = state->calls[state->depth];
+        tach_free_table(state->locals[state->depth]);
+        return got;
     }
     else if (fn->type == tach_object_table || fn->type == tach_object_vector) {
         while ((fn->type == tach_object_table || fn->type == tach_object_vector) && count > 0) {
+            tach_object *old = fn;
             if (fn->type == tach_object_table) {
-                tach_object *old = fn;
                 fn = tach_get_table(fn->value.table, args[0]);
                 if (fn == NULL) {
                     tach_errors_builtin_table_index(state, old);
@@ -54,7 +116,8 @@ void tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_object *
             count --;
             args ++;
         }
-        tach_vector_push(state->stack, fn);
+        fn->refc ++;
+        return fn;
     }
     else {
         char *bad = tach_clib_type_name(fn->type);
@@ -81,10 +144,9 @@ tach_object *tach_state_get(tach_state *state, tach_object *obj) {
     exit(1);
 }
 
-void tach_program_run(tach_state *state, tach_program *prog) {
-    state->program = prog;
-    while (state->place < prog->opcount) {
-        tach_opcode op = prog->opcodes[state->place];
+tach_object *tach_program_run(tach_state *state) {
+    while (state->place < state->program->opcount) {
+        tach_opcode op = state->program->opcodes[state->place];
         switch (op.type) {
             case tach_opcode_error: {
                 fprintf(stderr, "opcode error!");
@@ -92,7 +154,7 @@ void tach_program_run(tach_state *state, tach_program *prog) {
                 break;
             }
             case tach_opcode_push: {
-                tach_vector_push(state->stack, prog->objs[op.value]);
+                tach_vector_push(state->stack, state->program->objs[op.value]);
                 break;
             }
             case tach_opcode_pop: {
@@ -100,7 +162,7 @@ void tach_program_run(tach_state *state, tach_program *prog) {
                 break;
             }
             case tach_opcode_load: {
-                tach_vector_push(state->stack, tach_state_get(state, prog->objs[op.value]));
+                tach_vector_push(state->stack, tach_state_get(state, state->program->objs[op.value]));
                 break;
             }
             case tach_opcode_call: {
@@ -115,7 +177,9 @@ void tach_program_run(tach_state *state, tach_program *prog) {
                 tach_object *fn = tach_vector_last(state->stack);
                 fn->refc ++;
                 tach_vector_pop(state->stack);
-                tach_call(state, fn, argc, args);
+                tach_object *got = tach_call(state, fn, argc, args);
+                tach_vector_push(state->stack, got);
+                tach_free_object(got);
                 for (uint32_t i = 0; i < argc; i++) {
                     tach_free_object(args[i]);
                 }
@@ -131,12 +195,20 @@ void tach_program_run(tach_state *state, tach_program *prog) {
                 break;
             }
             case tach_opcode_ret: {
-                state->depth --;
-                state->place = state->calls[state->depth];
-                tach_free_table(state->locals[state->depth]);
+                tach_object *obj = tach_vector_last(state->stack);
+                obj->refc ++;
+                tach_vector_pop(state->stack);
+                return obj;
                 break;
             }
         }
         state->place ++;
     }
+    if (state->stack->count == 0) {
+        return tach_object_make_nil();
+    }
+    tach_object *obj = tach_vector_last(state->stack);
+    obj->refc ++;
+    tach_vector_pop(state->stack);
+    return obj;
 }

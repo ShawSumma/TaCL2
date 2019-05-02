@@ -1,6 +1,6 @@
 #pragma once
 
-#define tach_use_big_rational
+#define tach_use_big_float
 
 #include <stdlib.h>
 #include <stdio.h>

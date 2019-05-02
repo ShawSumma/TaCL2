@@ -1,0 +1,4 @@
+set x {
+    print $argc
+}
+print 100

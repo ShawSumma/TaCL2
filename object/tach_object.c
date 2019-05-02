@@ -237,7 +237,7 @@ tach_object *tach_object_copy(tach_object *obj) {
 }
 
 tach_vector *tach_vector_copy(tach_vector *vec) {
-    tach_vector *ret = tach_create_vector();
+    tach_vector *ret = malloc(sizeof(tach_vector));
     ret->alloc = vec->alloc;
     ret->count = vec->count;
     ret->objects = malloc(sizeof(tach_object *) * ret->alloc);

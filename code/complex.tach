@@ -1,0 +1,96 @@
+set complex [
+    [table new]
+    new {
+        if [eq $argc 2] {
+            [vector new] $0 $1
+        } {
+            [vector new] 0 0
+        }
+    }
+    real-part {
+        $0 0
+    }
+    imag-part {
+        $0 1
+    }
+    abs {
+        abs [add [[complex real-part] $0] [[complex imag-part] $0]]
+    }
+    add {
+        set ret [[complex new]]
+        [vector set] $ret 0 [
+            add
+                [[complex real-part] $0]
+                [[complex real-part] $1]
+        ]
+        [vector set] $ret 1 [
+            add
+                [[complex imag-part] $0]
+                [[complex imag-part] $1]
+        ]
+        ret
+    }
+    mul {
+        set ret [[complex new]]
+        set r1 [[complex real-part] $0]
+        set i1 [[complex imag-part] $0]
+        set r2 [[complex real-part] $1]
+        set i2 [[complex imag-part] $1]
+        [vector set] $ret 0 [
+            sub [
+                mul $r1 $r2
+            ] [
+                mul $i1 $i2
+            ]
+        ]
+        [vector set] $ret 1 [
+            add [
+                mul $r1 $i2
+            ] [
+                mul $i1 $r2
+            ]
+        ]
+        ret
+    }
+]
+
+proc abs v {
+    if [lt 0 $v] {
+        sub $v
+    } {
+        pass $v
+    }
+}
+
+proc mandelbrot-v c z n {
+    if [gt $n 0] {
+        if [gt 2 [[complex abs] $z]] {
+            set new-z [[complex add] $c [[complex mul] $z $z]]
+            mandelbrot-v $c $new-z [sub $n 1]
+        } {
+            pass $n
+        }
+    } {
+        pass 0
+    }
+}
+
+proc mandelbrot c {
+    eq 0 [mandelbrot-v $c $c 20]
+}
+
+set size 2
+
+count [mul $size 40] {
+    set x [div [sub $0 [mul $size 30]] [mul $size 20]]
+    count [mul $size 80] {
+        set y [div [sub $0 [mul $size 40]] [mul $size 40]]
+        set result [mandelbrot [[complex new] $x $y]]
+        if $result {
+            echo (#)
+        } {
+            echo ( )
+        }
+    }
+    newline
+}

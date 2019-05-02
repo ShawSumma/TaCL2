@@ -96,7 +96,7 @@ proc game w h {
 
 proc frame last n {
     set evo [evolve $last]
-    # {
+    #{
         view $last
         newline
     }
@@ -110,11 +110,11 @@ proc frame last n {
 proc main w {
     set h $w
     set world [game $w $h]
-    [vector set] [world 5] [sub $h 5] 1
-    [vector set] [world 6] [sub $h 5] 1
-    [vector set] [world 7] [sub $h 5] 1
-    [vector set] [world 7] [sub $h 4] 1
-    [vector set] [world 6] [sub $h 3] 1
+    [vector set] [world 1] [sub $h 4] 1
+    [vector set] [world 2] [sub $h 4] 1
+    [vector set] [world 3] [sub $h 4] 1
+    [vector set] [world 3] [sub $h 3] 1
+    [vector set] [world 2] [sub $h 2] 1
     print [frame $world 0]
 }
 

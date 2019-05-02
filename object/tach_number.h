@@ -1,9 +1,9 @@
 #pragma once
 #include <tach.h>
 
-#ifdef tach_use_big_rational
+#ifdef tach_use_big_float
 struct tach_number {
-    mpq_t number;
+    mpf_t number;
 };
 #else
 struct tach_number {

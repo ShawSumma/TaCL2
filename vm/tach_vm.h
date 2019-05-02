@@ -8,6 +8,7 @@ struct tach_state {
     uint32_t *calls;
     uint32_t callalloc;
     uint32_t depth;
+    uint32_t uplevels;
     uint32_t place;
 };
 
@@ -35,8 +36,11 @@ struct tach_program {
     uint32_t opcount;
 };
 
+tach_state *tach_create_state_empty(tach_program *);
 tach_state *tach_create_state();
 void tach_create_state_regester(tach_table *, char *, tach_object *);
-void tach_program_run(tach_state *, tach_program *);
+tach_object * tach_program_run(tach_state *);
 tach_object *tach_state_get(tach_state *, tach_object *);
-void tach_call(tach_state *, tach_object *, uint32_t, tach_object **);
+tach_object * tach_call(tach_state *, tach_object *, uint32_t, tach_object **);
+void tach_free_program(tach_program *);
+void tach_free_state(tach_state *);

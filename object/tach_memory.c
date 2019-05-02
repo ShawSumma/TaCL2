@@ -43,35 +43,6 @@ void tach_free_number(tach_number *num) {
     free(num);
 }
 
-void tach_free_vector(tach_vector *vec) {
-    for (uint32_t i = 0; i < vec->count; i++) {
-        tach_free_object(vec->objects[i]);
-    }
-    free(vec->objects);
-    free(vec);
-}
-
-void tach_free_state(tach_state *state) {
-    for (uint32_t i = 0; i < state->depth; i++) {
-        tach_free_table(state->locals[i]);
-    }
-    tach_free_vector(state->stack);
-    free(state->locals);
-    free(state->calls);
-    free(state);
-}
-
-void tach_free_program(tach_program *prog) {
-    free(prog->opcodes);
-    for (uint32_t i = 0; i < prog->objcount; i++) {
-        tach_free_object(prog->objs[i]);
-    }
-    free(prog->objs);
-    free(prog->linenos);
-    free(prog->colnos);
-    free(prog);
-}
-
 void tach_free_table(tach_table *table) {
     if (table->key != NULL) {
         tach_free_object(table->key);

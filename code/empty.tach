@@ -1,5 +1,0 @@
-proc empty {
-
-}
-
-print [empty]
