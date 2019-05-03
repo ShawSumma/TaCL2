@@ -64,21 +64,23 @@ tach_object *tach_call(tach_state *state, tach_object *fn, uint32_t count, tach_
         }
         state->calls[state->depth] = state->place;
         state->locals[state->depth] = tach_create_table();
-        tach_object *keyargc = tach_object_make_string(tach_create_string("argc"));
-        tach_object *valargc = tach_object_make_number(tach_create_number(count));
-        tach_set_table(
-            state->locals[state->depth],
-            keyargc,
-            valargc
-        );
-        tach_free_object(keyargc);
-        tach_free_object(valargc);
-        for (uint32_t i = 0; i < count; i++) {
-            char name[8];
-            snprintf(name, 7, "%d", i);
-            tach_object *r = tach_object_make_string(tach_create_string(name));
-            tach_set_table(state->locals[state->depth], r, args[i]);
-            tach_free_object(r);
+        if (fn->value.point.argc == 0) {
+            tach_object *keyargc = tach_object_make_string(tach_create_string("argc"));
+            tach_object *valargc = tach_object_make_number(tach_create_number(count));
+            tach_set_table(
+                state->locals[state->depth],
+                keyargc,
+                valargc
+            );
+            tach_free_object(keyargc);
+            tach_free_object(valargc);
+            for (uint32_t i = 0; i < count; i++) {
+                char name[8];
+                snprintf(name, 7, "%d", i);
+                tach_object *r = tach_object_make_string(tach_create_string(name));
+                tach_set_table(state->locals[state->depth], r, args[i]);
+                tach_free_object(r);
+            }
         }
         for (uint32_t i = 0; i < fn->value.point.argc; i++) {
             tach_set_table(state->locals[state->depth], fn->value.point.args[i], args[i]);

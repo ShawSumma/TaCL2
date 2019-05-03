@@ -5,7 +5,7 @@ import os
 import time
 
 cc = 'clang'
-opt = 'z'
+opt = '3'
 strip = False
 
 files = [
@@ -25,11 +25,13 @@ files = [
 ]
 
 for i in files:
-    cmd = [cc, '-g', '-O'+opt, '-c', '-I.', '-o', './out/' + i.replace('/', '_') + '.o', i + '.c']
+    cmd = [cc,
+        #  '-g',
+          '-O'+opt, '-c', '-I.', '-o', './out/' + i.replace('/', '_') + '.o', i + '.c']
     subprocess.run(cmd, check=True)
 
 cmd = ['ar', 'rcs', 'libtach.a'] + ['./out/' + i.replace('/', '_') + '.o' for i in files[:-1]]
 subprocess.run(cmd, check=True)
 
-cmd = [cc, '-O3', '-o', files[-1], files[-1] + '.c', '-I.', '-L.', '-ltach', '-lgmp']
+cmd = [cc, '-O3', '-o', files[-1], files[-1] + '.c', '-I.', '-L.', '-ltach', '-lgmp', '-lmpfr']
 subprocess.run(cmd, check=True)

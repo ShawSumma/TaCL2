@@ -223,7 +223,7 @@ char *tach_ast_read_number(tach_ast_state *state, tach_file *f) {
     uint32_t alloc = 16;
     char *name = malloc(sizeof(char) * alloc);
     uint32_t place = 0;
-    while ((got >= '0' && got <= '9') || got == '/' || got == '-') {
+    while ((got >= '0' && got <= '9') || got == '.' || got == '-') {
         if (place + 4 > alloc) {
             alloc *= 1.5;
             name = realloc(name, sizeof(char) * alloc);

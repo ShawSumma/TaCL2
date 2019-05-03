@@ -11,6 +11,7 @@ tach_object *tach_lib_add(tach_state *, uint32_t, tach_object **);
 tach_object *tach_lib_mul(tach_state *, uint32_t, tach_object **);
 tach_object *tach_lib_div(tach_state *, uint32_t, tach_object **);
 tach_object *tach_lib_sub(tach_state *, uint32_t, tach_object **);
+tach_object *tach_lib_mod(tach_state *, uint32_t, tach_object **);
 tach_object *tach_lib_call(tach_state *, uint32_t, tach_object **);
 tach_object *tach_lib_apply(tach_state *, uint32_t, tach_object **);
 tach_object *tach_lib_proc(tach_state *, uint32_t, tach_object **);

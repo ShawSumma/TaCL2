@@ -76,14 +76,14 @@ proc mandelbrot-v c z n {
 }
 
 proc mandelbrot c {
-    eq 0 [mandelbrot-v $c $c 20]
+    eq 0 [mandelbrot-v $c $c 500]
 }
 
-set size 2
+set size 0.5
 
 count [mul $size 40] {
     set x [div [sub $0 [mul $size 30]] [mul $size 20]]
-    count [mul $size 80] {
+    count [sub [mul $size 80] 1] {
         set y [div [sub $0 [mul $size 40]] [mul $size 40]]
         set result [mandelbrot [[complex new] $x $y]]
         if $result {

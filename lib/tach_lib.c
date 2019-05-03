@@ -13,6 +13,7 @@ tach_state *tach_create_state(tach_program *prog) {
     tach_create_state_regester(ret->locals[0], "mul", tach_object_make_func(tach_lib_mul));
     tach_create_state_regester(ret->locals[0], "div", tach_object_make_func(tach_lib_div));
     tach_create_state_regester(ret->locals[0], "sub", tach_object_make_func(tach_lib_sub));
+    tach_create_state_regester(ret->locals[0], "mod", tach_object_make_func(tach_lib_mod));
 
     tach_create_state_regester(ret->locals[0], "call", tach_object_make_func(tach_lib_call));
     tach_create_state_regester(ret->locals[0], "uplevel", tach_object_make_func(tach_lib_uplevel));
@@ -283,6 +284,17 @@ tach_object *tach_lib_mul(tach_state *state, uint32_t argc, tach_object **args) 
     for (uint32_t i = 0; i < argc; i++) {
         tach_errors_type_typecheck(state, "mul", i, args[i], tach_object_number);
         tach_number_mul(ret, args[i]->value.number);
+    }
+    return tach_object_make_number(ret);
+}
+
+tach_object *tach_lib_mod(tach_state *state, uint32_t argc, tach_object **args) {
+    tach_errors_type_argc(state, "mod", argc, 1, max_argc);
+    tach_errors_type_typecheck(state, "mod", 0, args[0], tach_object_number);
+    tach_number *ret = tach_number_copy(args[0]->value.number);
+    for (uint32_t i = 1; i < argc; i++) {
+        tach_errors_type_typecheck(state, "mod", i, args[i], tach_object_number);
+        tach_number_mod(ret, args[i]->value.number);
     }
     return tach_object_make_number(ret);
 }

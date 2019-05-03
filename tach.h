@@ -10,6 +10,7 @@
 #include <stdarg.h>
 
 #include <gmp.h>
+#include <mpfr.h>
 
 #include "object/tach_types.h"
 #include "vm/tach_types.h"

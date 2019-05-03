@@ -96,7 +96,7 @@ proc game w h {
 
 proc frame last n {
     set evo [evolve $last]
-    #{
+    # {
         view $last
         newline
     }
@@ -118,4 +118,4 @@ proc main w {
     print [frame $world 0]
 }
 
-main 50
+main 40
